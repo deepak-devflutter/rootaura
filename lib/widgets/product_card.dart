@@ -1,16 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 
-import '../core/app_colors.dart';
-import '../core/app_theme.dart';
-import '../sections/products_section.dart';
-import 'buttons.dart';
+import '../core/constants/app_dimens.dart';
+import '../core/constants/app_durations.dart';
+import '../core/constants/shop_config.dart';
+import '../core/router/app_router.dart';
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_text_styles.dart';
+import '../data/models/product.dart';
+import '../state/cart_controller.dart';
+import 'app_buttons.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
-
   const ProductCard({super.key, required this.product});
 
   @override
@@ -18,143 +21,190 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
-  bool _isHovered = false;
+  bool _hover = false;
+
+  void _openDetail() =>
+      context.push(AppRoutes.productDetailPath(widget.product.slug));
+
+  void _addToCart() {
+    CartController.instance.add(widget.product);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${widget.product.name} added to cart')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final brand = context.brand;
+    final p = widget.product;
+
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        transform: Matrix4.identity()..translate(0.0, _isHovered ? -8.0 : 0.0),
-        child: Container(
-          width: 340,
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: _openDetail,
+        child: AnimatedContainer(
+          duration: AppDurations.medium,
+          curve: Curves.easeOutCubic,
+          transform: Matrix4.identity()
+            ..translateByDouble(0.0, _hover ? -10.0 : 0.0, 0.0, 1.0),
           decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(28),
+            color: brand.card,
+            borderRadius: BorderRadius.circular(AppDimens.radiusXl),
+            border: Border.all(
+                color: _hover
+                    ? AppColors.primaryGreen.withValues(alpha: 0.30)
+                    : brand.border),
             boxShadow: [
               BoxShadow(
-                color: _isHovered
-                    ? AppColors.primaryGreen.withValues(alpha: 0.15)
-                    : AppColors.primaryGreen.withValues(alpha: 0.08),
-                blurRadius: _isHovered ? 30 : 20,
-                offset: Offset(0, _isHovered ? 12 : 8),
+                color: AppColors.primaryGreen
+                    .withValues(alpha: _hover ? 0.16 : 0.07),
+                blurRadius: _hover ? 40 : 22,
+                offset: Offset(0, _hover ? 18 : 10),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product Image Placeholder
-              Container(
-                height: 240,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.primaryGreen.withValues(alpha: 0.1),
-                      AppColors.accent.withValues(alpha: 0.1),
+              _image(p),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppDimens.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(p.name ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.h3
+                              .copyWith(color: brand.textPrimary, fontSize: 18)),
+                      const SizedBox(height: AppDimens.xs),
+                      Text(p.description ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodySmall
+                              .copyWith(color: brand.textSecondary)),
+                      const SizedBox(height: AppDimens.md),
+                      _priceRow(brand, p),
+                      const Spacer(),
+                      const SizedBox(height: AppDimens.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: p.inStock
+                            ? PrimaryButton(
+                                text: 'Add to Cart',
+                                icon: Icons.add_shopping_cart_rounded,
+                                dense: true,
+                                onPressed: _addToCart,
+                              )
+                            : SecondaryButton(
+                                text: 'Out of Stock',
+                                dense: true,
+                                onPressed: _openDetail,
+                              ),
+                      ),
                     ],
                   ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    topRight: Radius.circular(28),
-                  ),
-                ),
-                child: Center(
-                  child: CachedNetworkImage(
-                    imageUrl: widget.product.imageUrls.firstOrNull ?? '',
-                    height: 200,
-                    placeholder: (context, url) => CircularProgressIndicator(
-                      color: Colors.white54,
-                    ),
-                    // errorWidget: (context, url, error) => Icon(Icons.error),
-
-                    // child: Icon(
-                    //   Icons.eco_outlined,
-                    //   size: 80,
-                    //   color: AppColors.primaryGreen.withValues(alpha: 0.5),
-                    // ),
-                  ),
-                ),
-              ),
-              // Product Details
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.product.name ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.darkGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.product.description ?? '',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline,
-                            size: 20,
-                            color: AppColors.primaryGreen,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              widget.product.benefit ?? '',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.primaryGreen,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: PrimaryButton(
-                        text: 'Buy Now',
-                        onPressed: () async {
-                          // Open Amazon link
-                          if (!await launchUrl(Uri.parse(widget.product.purchaseUrl??''))) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Failed to open website'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-
-                        },
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _priceRow(BrandColors brand, Product p) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(ShopConfig.money(p.price),
+            style: AppTextStyles.h3
+                .copyWith(color: brand.textPrimary, fontSize: 20)),
+        if (p.hasDiscount) ...[
+          const SizedBox(width: AppDimens.sm),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text(ShopConfig.money(p.mrp),
+                style: AppTextStyles.bodySmall.copyWith(
+                    color: brand.textSecondary,
+                    decoration: TextDecoration.lineThrough)),
+          ),
+          const SizedBox(width: AppDimens.sm),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text('${p.discountPercent}% off',
+                style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.primaryGreen,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _image(Product p) {
+    return SizedBox(
+      height: 200,
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primaryGreen.withValues(alpha: 0.07),
+                  AppColors.gold.withValues(alpha: 0.10),
+                ],
+              ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppDimens.radiusXl),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimens.lg),
+              child: AnimatedScale(
+                duration: AppDurations.medium,
+                scale: _hover ? 1.06 : 1.0,
+                child: CachedNetworkImage(
+                  imageUrl: p.firstImage ?? '',
+                  fit: BoxFit.contain,
+                  placeholder: (c, _) => const Center(
+                    child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2)),
+                  ),
+                  errorWidget: (c, _, __) => Icon(Icons.eco_rounded,
+                      size: 56,
+                      color: AppColors.primaryGreen.withValues(alpha: 0.4)),
+                ),
+              ),
+            ),
+          ),
+          if (p.hasDiscount)
+            Positioned(
+              top: AppDimens.md,
+              left: AppDimens.md,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.berry,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusPill),
+                ),
+                child: Text('${p.discountPercent}% OFF',
+                    style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11)),
+              ),
+            ),
+        ],
       ),
     );
   }

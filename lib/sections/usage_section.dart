@@ -1,88 +1,40 @@
-
 import 'package:flutter/material.dart';
 
-import '../core/app_theme.dart';
-import '../core/responsive.dart';
-import '../widgets/usage_card.dart';
+import '../core/constants/app_dimens.dart';
+import '../core/constants/app_strings.dart';
+import '../core/theme/app_colors.dart';
+import '../data/app_content.dart';
+import '../widgets/content_cards.dart';
+import '../widgets/responsive_grid.dart';
+import '../widgets/scroll_reveal.dart';
+import '../widgets/section.dart';
 
 class UsageSection extends StatelessWidget {
   const UsageSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
-
-    final usageIdeas = [
-      UsageIdea(
-        icon: Icons.local_drink_outlined,
-        title: 'Detox Drinks',
-        description: 'Quick wellness shots',
-      ),
-      UsageIdea(
-        icon: Icons.soup_kitchen_outlined,
-        title: 'Curries & Gravies',
-        description: 'Enhance flavor and health naturally',
-      ),
-      UsageIdea(
-        icon: Icons.bakery_dining_outlined,
-        title: 'Baking & Snacks',
-        description: 'Healthy twist to your treats',
-      ),
-      UsageIdea(
-        icon: Icons.restaurant_menu_outlined,
-        title: 'Soups & Salads',
-        description: 'Extra nutrition in every bite',
-      ),
-      UsageIdea(
-        icon: Icons.blender_outlined,
-        title: 'Smoothies & Juices',
-        description: 'Add a nutrient punch to your drinks',
-      ),
-    ];
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 64,
-        vertical: isMobile ? 60 : 100,
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              Text(
-                'How to Use Rootaura Powders',
-                style: isMobile
-                    ? AppTextStyles.sectionTitleMobile
-                    : AppTextStyles.sectionTitle,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 64),
-              Wrap(
-                spacing: isMobile ? 16 : 32,
-                runSpacing: isMobile ? 16 : 32,
-                alignment: WrapAlignment.center,
-                children: usageIdeas.map((idea) {
-                  return UsageCard(idea: idea);
-                }).toList(),
-              ),
-            ],
+    return SectionContainer(
+      background: context.brand.sectionAlt,
+      child: Column(
+        children: [
+          const SectionHeader(
+            eyebrow: AppStrings.usageEyebrow,
+            title: AppStrings.usageTitle,
+            subtitle: AppStrings.usageSubtitle,
           ),
-        ),
+          const SizedBox(height: AppDimens.xxl),
+          ScrollReveal(
+            child: ResponsiveGrid(
+              mobile: 1,
+              tablet: 3,
+              desktop: 5,
+              children:
+                  AppContent.usages.map((i) => UsageCard(item: i)).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-class UsageIdea {
-  final IconData icon;
-  final String title;
-  final String description;
-
-  UsageIdea({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
 }

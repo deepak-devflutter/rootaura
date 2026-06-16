@@ -1,0 +1,69 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- helpers ----
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Admin = email in the allow-list OR users/{uid}.role == 'admin'.
+    // TODO(client): add the real admin email(s) here AND in ShopConfig.
+    function adminEmails() {
+      return ['owner@example.com'];
+    }
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.email in adminEmails() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    // ---- products: public read, admin write ----
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---- users: owners manage their own doc; role is not client-writable ----
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.role == 'customer';
+      // Block privilege escalation: role must stay the same on update.
+      allow update: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.role == resource.data.role;
+      allow delete: if false;
+    }
+
+    // ---- carts: private to the owner ----
+    match /carts/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // ---- orders ----
+    // Customers create their own orders; the order must be internally
+    // consistent and start in a clean state. Customers can read their own
+    // orders but never modify them. Admins read all and update status/payment.
+    //
+    // NOTE: line prices are validated against the catalogue manually before
+    // dispatch (low volume). Phase 2 moves total calculation into a Cloud
+    // Function for fully server-trusted pricing.
+    match /orders/{id} {
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'placed'
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.items.size() > 0
+        && request.resource.data.total >= 0
+        && request.resource.data.total ==
+             request.resource.data.subtotal + request.resource.data.delivery;
+      allow read: if signedIn()
+        && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+  }
+}

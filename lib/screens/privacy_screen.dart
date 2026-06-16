@@ -1,82 +1,72 @@
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../core/app_colors.dart';
-import '../core/app_theme.dart';
+import '../core/constants/app_dimens.dart';
+import '../core/constants/app_strings.dart';
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_text_styles.dart';
+import '../widgets/page_scaffold.dart';
+import '../widgets/section.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
 
+  static const _sections = [
+    (
+      'Information We Collect',
+      'When you contact us or subscribe, we may collect your name, email '
+          'address and any message you send. We do not collect payment '
+          'information — purchases are completed on third-party marketplaces.'
+    ),
+    (
+      'How We Use Your Information',
+      'We use your information only to respond to enquiries, process requests, '
+          'and — with your consent — share product updates and offers.'
+    ),
+    (
+      'Cookies & Analytics',
+      'Our website may use basic analytics to understand how visitors use the '
+          'site so we can improve it. No personally identifying data is sold.'
+    ),
+    (
+      'Third-Party Links',
+      'Our site links to external marketplaces such as Amazon. Their privacy '
+          'practices are governed by their own policies.'
+    ),
+    (
+      'Your Choices',
+      'You can ask us to access, update or delete your information at any time '
+          'by writing to ${AppStrings.contactEmailAddress}.'
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryGreen),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Privacy Policy',
-          style: GoogleFonts.poppins(
-            color: AppColors.darkGreen,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Privacy Policy',
-                  style: AppTextStyles.sectionTitle,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Last updated: January 2025',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'At Rootaura Naturals, we respect your privacy and are committed to protecting your personal information. This Privacy Policy outlines how we collect, use, and safeguard your data.',
-                  style: AppTextStyles.bodyLarge,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Information Collection',
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'We may collect information when you contact us via email or social media. We do not collect payment information as all transactions are processed through Amazon.',
-                  style: AppTextStyles.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Contact Us',
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'For any privacy-related questions, please contact us at rootaura_naturals@gmail.com',
-                  style: AppTextStyles.bodyMedium,
-                ),
-              ],
-            ),
-          ),
+    final brand = context.brand;
+    return PageScaffold(
+      body: SectionContainer(
+        maxWidth: 800,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppStrings.privacyTitle,
+                style: AppTextStyles.h1.copyWith(color: brand.textPrimary)),
+            const SizedBox(height: AppDimens.sm),
+            Text(
+                'Your trust matters to us. This policy explains how Rootaura '
+                'Naturals handles your information.',
+                style: AppTextStyles.bodyLarge
+                    .copyWith(color: brand.textSecondary)),
+            const SizedBox(height: AppDimens.xl),
+            for (final s in _sections) ...[
+              Text(s.$1,
+                  style: AppTextStyles.h3.copyWith(color: brand.textPrimary)),
+              const SizedBox(height: AppDimens.sm),
+              Text(s.$2,
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: brand.textSecondary)),
+              const SizedBox(height: AppDimens.lg),
+            ],
+          ],
         ),
       ),
     );

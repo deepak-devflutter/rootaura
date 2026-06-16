@@ -1,15 +1,23 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../core/app_colors.dart';
-import '../core/app_theme.dart';
-import '../core/firebase_remote_config_util.dart';
-import '../core/responsive.dart';
-import '../firebase_options.dart';
+import '../core/constants/app_dimens.dart';
+import '../core/constants/app_strings.dart';
+import '../core/router/app_router.dart';
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_text_styles.dart';
+import '../data/models/product.dart';
+import '../data/products_repository.dart';
+import '../widgets/app_buttons.dart';
 import '../widgets/product_card.dart';
+import '../widgets/responsive_grid.dart';
+import '../widgets/scroll_reveal.dart';
+import '../widgets/section.dart';
 
 class ProductsSection extends StatefulWidget {
-  const ProductsSection({super.key});
+  /// When true, shows every product; otherwise caps the home preview.
+  final bool showAll;
+  const ProductsSection({super.key, this.showAll = false});
 
   @override
   State<ProductsSection> createState() => _ProductsSectionState();
@@ -21,142 +29,81 @@ class _ProductsSectionState extends State<ProductsSection> {
   @override
   void initState() {
     super.initState();
-    _future = _loadProducts();
+    _future = ProductsRepository.instance.load();
   }
 
-  void _retry() {
-    setState(() {
-      _future = _loadProducts();
-    });
-  }
-
-  /// ✅ Pure async function — no setState, no UI logic
-  Future<List<Product>> _loadProducts() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    await RemoteConfigUtil.instance.init();
-    debugPrint('✅ Remote Config initialized');
-
-    return RemoteConfigUtil.instance.productsConfig;
-  }
+  void _retry() => setState(
+      () => _future = ProductsRepository.instance.load(forceRefresh: true));
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
-
-    return FutureBuilder<List<Product>>(
-      future: _future,
-      builder: (context, snapshot) {
-        // ⏳ Loading
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        // ❌ Error
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Something went wrong'),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: _retry,
-                  child: const Text('Try Again'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // ✅ Success
-        final products = snapshot.data!;
-        if (products.isEmpty) {
-          return const Center(child: Text('No products available'));
-        }
-
-        return Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.background,
-                AppColors.primaryGreen.withValues(alpha: 0.03),
-              ],
-            ),
+    final brand = context.brand;
+    return SectionContainer(
+      background: brand.sectionAlt,
+      child: Column(
+        children: [
+          SectionHeader(
+            eyebrow: AppStrings.productsEyebrow,
+            title: AppStrings.productsTitle,
+            subtitle: AppStrings.productsSubtitle,
           ),
-          padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 24 : 64,
-            vertical: isMobile ? 60 : 100,
-          ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
+          const SizedBox(height: AppDimens.xxl),
+          FutureBuilder<List<Product>>(
+            future: _future,
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(AppDimens.xxl),
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snap.hasError) return _error();
+              final products = snap.data ?? const [];
+              if (products.isEmpty) {
+                return Text(AppStrings.noProducts,
+                    style: AppTextStyles.bodyLarge
+                        .copyWith(color: brand.textSecondary));
+              }
+              final shown =
+                  widget.showAll ? products : products.take(6).toList();
+              return Column(
                 children: [
-                  Text(
-                    'Our Products',
-                    style: isMobile
-                        ? AppTextStyles.sectionTitleMobile
-                        : AppTextStyles.sectionTitle,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    // 'Pure dehydrated fruit and vegetable powders',
-                    'Premium Freeze-Dried Fruits\nReal fruit. No preservatives. Maximum flavor and nutrition.',
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textSecondary,
+                  ScrollReveal(
+                    child: ResponsiveGrid(
+                      mobile: 1,
+                      tablet: 2,
+                      desktop: 3,
+                      children: shown
+                          .map((p) => ProductCard(product: p))
+                          .toList(),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 64),
-                  Wrap(
-                    spacing: 24,
-                    runSpacing: 32,
-                    alignment: WrapAlignment.center,
-                    children: products
-                        .map((product) => ProductCard(product: product))
-                        .toList(),
-                  ),
+                  if (!widget.showAll) ...[
+                    const SizedBox(height: AppDimens.xl),
+                    SecondaryButton(
+                      text: AppStrings.viewAllProducts,
+                      icon: Icons.arrow_forward_rounded,
+                      onPressed: () => context.push(AppRoutes.products),
+                    ),
+                  ],
                 ],
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+        ],
+      ),
     );
   }
-}
 
-class Product {
-  final String? name;
-  final String? description;
-  final String? benefit;
-  final String? purchaseUrl;
-  final List<String> imageUrls;
-
-  Product({
-    this.name,
-    this.description,
-    this.benefit,
-    this.purchaseUrl,
-    required this.imageUrls,
-  });
-
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      name: json['name'],
-      description: json['description'],
-      benefit: json['benefit'],
-      purchaseUrl: json['purchaseUrl'],
-      imageUrls: List<String>.from(json['imageUrls'] ?? []),
+  Widget _error() {
+    return Column(
+      children: [
+        Text(AppStrings.somethingWrong,
+            style: AppTextStyles.bodyLarge
+                .copyWith(color: context.brand.textSecondary)),
+        const SizedBox(height: AppDimens.md),
+        PrimaryButton(text: AppStrings.tryAgain, onPressed: _retry),
+      ],
     );
   }
 }
