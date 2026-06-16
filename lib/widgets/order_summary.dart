@@ -10,6 +10,7 @@ import 'app_buttons.dart';
 /// action button. Used on the cart and checkout screens.
 class OrderSummary extends StatelessWidget {
   final double subtotal;
+  final double discountPercent; // per-customer VIP discount
   final String? actionLabel;
   final VoidCallback? onAction;
   final bool busy;
@@ -18,17 +19,23 @@ class OrderSummary extends StatelessWidget {
   const OrderSummary({
     super.key,
     required this.subtotal,
+    this.discountPercent = 0,
     this.actionLabel,
     this.onAction,
     this.busy = false,
     this.extra,
   });
 
+  /// Discount amount, rounded to whole rupees so totals stay exact.
+  static double discountFor(double subtotal, double percent) =>
+      (subtotal * percent / 100).roundToDouble();
+
   @override
   Widget build(BuildContext context) {
     final brand = context.brand;
     final delivery = ShopConfig.deliveryFor(subtotal);
-    final total = subtotal + delivery;
+    final discount = discountFor(subtotal, discountPercent);
+    final total = subtotal + delivery - discount;
 
     return Container(
       padding: const EdgeInsets.all(AppDimens.lg),
@@ -48,6 +55,15 @@ class OrderSummary extends StatelessWidget {
                   .copyWith(color: brand.textPrimary, fontSize: 18)),
           const SizedBox(height: AppDimens.md),
           _row(brand, 'Subtotal', ShopConfig.money(subtotal)),
+          if (discount > 0) ...[
+            const SizedBox(height: AppDimens.sm),
+            _row(
+              brand,
+              'Discount (${discountPercent.toStringAsFixed(0)}%)',
+              '- ${ShopConfig.money(discount)}',
+              highlight: true,
+            ),
+          ],
           const SizedBox(height: AppDimens.sm),
           _row(
             brand,

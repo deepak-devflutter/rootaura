@@ -60,15 +60,24 @@ class CartController extends ChangeNotifier {
     });
   }
 
-  void add(Product product, {int qty = 1}) {
+  /// Adds [qty] of [product], never exceeding its available stock.
+  /// Returns true if the cart actually changed; false if it was already at the
+  /// stock limit (so callers can warn the user).
+  bool add(Product product, {int qty = 1}) {
+    if (product.stock <= 0) return false;
     final i = _items.indexWhere((e) => e.productId == product.id);
+    final current = i >= 0 ? _items[i].qty : 0;
+    final newQty = (current + qty).clamp(1, product.stock);
+    if (newQty == current) return false; // already at stock cap
+
     if (i >= 0) {
-      _items[i] = _items[i].copyWith(qty: _items[i].qty + qty);
+      _items[i] = _items[i].copyWith(qty: newQty, stock: product.stock);
     } else {
-      _items.add(CartItem.fromProduct(product, qty: qty));
+      _items.add(CartItem.fromProduct(product, qty: newQty));
     }
     notifyListeners();
     _persist();
+    return true;
   }
 
   void setQty(String productId, int qty) {
@@ -77,7 +86,7 @@ class CartController extends ChangeNotifier {
     if (qty <= 0) {
       _items.removeAt(i);
     } else {
-      _items[i] = _items[i].copyWith(qty: qty);
+      _items[i] = _items[i].copyWith(qty: qty.clamp(1, _items[i].stock));
     }
     notifyListeners();
     _persist();

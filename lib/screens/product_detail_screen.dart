@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,6 +11,7 @@ import '../data/models/product.dart';
 import '../data/products_repository.dart';
 import '../state/cart_controller.dart';
 import '../widgets/app_buttons.dart';
+import '../widgets/image_carousel.dart';
 import '../widgets/page_scaffold.dart';
 import '../widgets/qty_stepper.dart';
 
@@ -24,23 +24,28 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  late Future<Product?> _future;
   int _qty = 1;
 
-  @override
-  void initState() {
-    super.initState();
-    _future = ProductsRepository.instance.bySlug(widget.slug);
+  Product? _match(List<Product> products) {
+    for (final p in products) {
+      if (p.slug == widget.slug || p.id == widget.slug) return p;
+    }
+    return null;
   }
 
   void _addToCart(Product p) {
-    CartController.instance.add(p, qty: _qty);
+    final qty = _qty.clamp(1, p.stock);
+    final added = CartController.instance.add(p, qty: qty);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${p.name} (×$_qty) added to cart'),
-        action: SnackBarAction(
-            label: 'View Cart',
-            onPressed: () => context.push(AppRoutes.cart)),
+        content: Text(added
+            ? '${p.name} (×$qty) added to cart'
+            : 'You already have the maximum available (${p.stock}) in your cart'),
+        action: added
+            ? SnackBarAction(
+                label: 'View Cart',
+                onPressed: () => context.push(AppRoutes.cart))
+            : null,
       ),
     );
   }
@@ -57,8 +62,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: ConstrainedBox(
             constraints:
                 const BoxConstraints(maxWidth: AppDimens.maxContentWidth),
-            child: FutureBuilder<Product?>(
-              future: _future,
+            child: StreamBuilder<List<Product>>(
+              stream: ProductsRepository.instance.streamActive(),
               builder: (context, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Padding(
@@ -66,7 +71,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
-                final product = snap.data;
+                final product = _match(snap.data ?? const []);
                 if (product == null) return _notFound(context);
                 return _detail(context, product);
               },
@@ -81,29 +86,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final brand = context.brand;
     final isMobile = Responsive.isMobile(context);
 
-    final image = ClipRRect(
-      borderRadius: BorderRadius.circular(AppDimens.radiusXl),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-            AppColors.primaryGreen.withValues(alpha: 0.08),
-            AppColors.gold.withValues(alpha: 0.10),
-          ]),
-        ),
-        padding: const EdgeInsets.all(AppDimens.xl),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: CachedNetworkImage(
-            imageUrl: p.firstImage ?? '',
-            fit: BoxFit.contain,
-            placeholder: (c, _) =>
-                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-            errorWidget: (c, _, __) => Icon(Icons.eco_rounded,
-                size: 80, color: AppColors.primaryGreen.withValues(alpha: 0.4)),
-          ),
-        ),
-      ),
-    );
+    final image = ImageCarousel(imageUrls: p.imageUrls);
 
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +133,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       .copyWith(color: brand.textPrimary)),
               const SizedBox(width: AppDimens.md),
               QtyStepper(
-                  qty: _qty, onChanged: (q) => setState(() => _qty = q)),
+                  qty: _qty.clamp(1, p.stock),
+                  max: p.stock,
+                  onChanged: (q) => setState(() => _qty = q)),
             ],
           ),
           const SizedBox(height: AppDimens.lg),

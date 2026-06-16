@@ -17,19 +17,31 @@ class OrderRepository {
   }
 
   /// Live stream of the signed-in customer's orders, newest first.
+  /// Sorted client-side so it needs no composite index.
   Stream<List<ShopOrder>> ordersForUser(String uid) {
-    return _col
-        .where('uid', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((s) =>
-            s.docs.map((d) => ShopOrder.fromMap(d.id, d.data())).toList());
+    return _col.where('uid', isEqualTo: uid).snapshots().map((s) {
+      final orders =
+          s.docs.map((d) => ShopOrder.fromMap(d.id, d.data())).toList();
+      orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return orders;
+    });
   }
 
   Future<ShopOrder?> byId(String id) async {
     final snap = await _col.doc(id).get();
     return snap.exists ? ShopOrder.fromMap(id, snap.data()!) : null;
   }
+
+  /// Live single-order stream (status, payment, shipment update in real time).
+  Stream<ShopOrder?> streamOrder(String id) {
+    return _col.doc(id).snapshots().map(
+        (d) => d.exists ? ShopOrder.fromMap(id, d.data()!) : null);
+  }
+
+  /// Customer-initiated cancellation — only allowed while still 'placed'
+  /// (the security rules enforce the same).
+  Future<void> cancelByCustomer(String id) =>
+      _col.doc(id).update({'status': OrderStatus.cancelled});
 
   // ---- Admin ----
   Stream<List<ShopOrder>> allOrders() {
@@ -40,6 +52,19 @@ class OrderRepository {
   Future<void> updateStatus(String orderId, String status) =>
       _col.doc(orderId).update({'status': status});
 
-  Future<void> markPaid(String orderId) =>
-      _col.doc(orderId).update({'paymentStatus': PaymentStatus.paid});
+  /// Set payment status to paid or back to pending (rollback).
+  Future<void> setPaymentStatus(String orderId, String status) =>
+      _col.doc(orderId).update({'paymentStatus': status});
+
+  Future<void> updateShipment(
+    String orderId, {
+    required String courier,
+    required String trackingId,
+    String? trackingUrl,
+  }) =>
+      _col.doc(orderId).update({
+        'courier': courier,
+        'trackingId': trackingId,
+        'trackingUrl': trackingUrl,
+      });
 }

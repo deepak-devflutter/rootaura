@@ -121,6 +121,7 @@ class _CartRow extends StatelessWidget {
           const SizedBox(width: AppDimens.sm),
           QtyStepper(
             qty: item.qty,
+            max: item.stock,
             onChanged: (q) =>
                 CartController.instance.setQty(item.productId, q),
           ),

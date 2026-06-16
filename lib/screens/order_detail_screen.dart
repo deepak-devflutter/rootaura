@@ -10,7 +10,11 @@ import '../core/theme/app_text_styles.dart';
 import '../data/models/cart_item.dart';
 import '../data/models/order.dart';
 import '../data/order_repository.dart';
+import '../data/products_repository.dart';
+import '../state/cart_controller.dart';
 import '../utils/format.dart';
+import '../utils/url_helper.dart';
+import '../widgets/app_buttons.dart';
 import '../widgets/page_scaffold.dart';
 import '../widgets/section.dart';
 import '../widgets/status_badge.dart';
@@ -24,8 +28,8 @@ class OrderDetailScreen extends StatelessWidget {
     return PageScaffold(
       body: SectionContainer(
         maxWidth: 720,
-        child: FutureBuilder<ShopOrder?>(
-          future: OrderRepository.instance.byId(orderId),
+        child: StreamBuilder<ShopOrder?>(
+          stream: OrderRepository.instance.streamOrder(orderId),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
               return const Padding(
@@ -115,12 +119,53 @@ class OrderDetailScreen extends StatelessWidget {
             ],
           ),
         ),
+        if ((o.note ?? '').isNotEmpty) ...[
+          const SizedBox(height: AppDimens.md),
+          _card(
+            brand,
+            'Your Note',
+            Text(o.note!,
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: brand.textSecondary)),
+          ),
+        ],
+        if (o.hasShipment) ...[
+          const SizedBox(height: AppDimens.md),
+          _card(
+            brand,
+            'Shipment Tracking',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _billRow(brand, 'Courier', o.courier!),
+                const SizedBox(height: 4),
+                _billRow(brand, 'Tracking ID', o.trackingId!),
+                if ((o.trackingUrl ?? '').isNotEmpty) ...[
+                  const SizedBox(height: AppDimens.md),
+                  SecondaryButton(
+                    text: 'Track Shipment',
+                    icon: Icons.local_shipping_outlined,
+                    dense: true,
+                    onPressed: () => UrlHelper.open(context, o.trackingUrl),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: AppDimens.md),
         _card(
           brand,
           'Bill',
           Column(children: [
             _billRow(brand, 'Subtotal', ShopConfig.money(o.subtotal)),
+            if (o.discountAmount > 0) ...[
+              const SizedBox(height: 6),
+              _billRow(
+                  brand,
+                  'Discount (${o.discountPercent.toStringAsFixed(0)}%)',
+                  '- ${ShopConfig.money(o.discountAmount)}'),
+            ],
             const SizedBox(height: 6),
             _billRow(brand, 'Delivery',
                 o.delivery == 0 ? 'FREE' : ShopConfig.money(o.delivery)),
@@ -131,8 +176,87 @@ class OrderDetailScreen extends StatelessWidget {
             _billRow(brand, 'Total', ShopConfig.money(o.total), bold: true),
           ]),
         ),
+        const SizedBox(height: AppDimens.xl),
+        Wrap(
+          spacing: AppDimens.md,
+          runSpacing: AppDimens.md,
+          children: [
+            if (o.status == OrderStatus.placed)
+              SecondaryButton(
+                text: 'Cancel Order',
+                icon: Icons.close_rounded,
+                onPressed: () => _cancel(context, o),
+              ),
+            PrimaryButton(
+              text: 'Reorder',
+              icon: Icons.replay_rounded,
+              onPressed: () => _reorder(context, o),
+            ),
+          ],
+        ),
       ],
     );
+  }
+
+  Future<void> _cancel(BuildContext context, ShopOrder o) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancel this order?'),
+        content: const Text(
+            'You can cancel while the order is still being placed. This cannot be undone.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Keep order')),
+          FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.berry),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Cancel order')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await OrderRepository.instance.cancelByCustomer(o.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order cancelled.')));
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Could not cancel — it may already be processing.')));
+      }
+    }
+  }
+
+  Future<void> _reorder(BuildContext context, ShopOrder o) async {
+    final products = await ProductsRepository.instance.load(forceRefresh: true);
+    final byId = {for (final p in products) p.id: p};
+    var added = 0;
+    final unavailable = <String>[];
+    for (final item in o.items) {
+      final p = byId[item.productId];
+      if (p != null && p.active && p.inStock) {
+        CartController.instance.add(p, qty: item.qty);
+        added++;
+      } else {
+        unavailable.add(item.name);
+      }
+    }
+    if (!context.mounted) return;
+    if (added == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('None of these items are available right now.')));
+      return;
+    }
+    final msg = unavailable.isEmpty
+        ? '$added item(s) added to cart'
+        : '$added added · unavailable: ${unavailable.join(', ')}';
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+    context.push(AppRoutes.cart);
   }
 
   Widget _itemRow(CartItem i) => Padding(

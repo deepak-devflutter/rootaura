@@ -14,26 +14,10 @@ import '../widgets/responsive_grid.dart';
 import '../widgets/scroll_reveal.dart';
 import '../widgets/section.dart';
 
-class ProductsSection extends StatefulWidget {
+class ProductsSection extends StatelessWidget {
   /// When true, shows every product; otherwise caps the home preview.
   final bool showAll;
   const ProductsSection({super.key, this.showAll = false});
-
-  @override
-  State<ProductsSection> createState() => _ProductsSectionState();
-}
-
-class _ProductsSectionState extends State<ProductsSection> {
-  late Future<List<Product>> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = ProductsRepository.instance.load();
-  }
-
-  void _retry() => setState(
-      () => _future = ProductsRepository.instance.load(forceRefresh: true));
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +32,9 @@ class _ProductsSectionState extends State<ProductsSection> {
             subtitle: AppStrings.productsSubtitle,
           ),
           const SizedBox(height: AppDimens.xxl),
-          FutureBuilder<List<Product>>(
-            future: _future,
+          // Live stream so price / stock / out-of-stock reflect in real time.
+          StreamBuilder<List<Product>>(
+            stream: ProductsRepository.instance.streamActive(),
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
                 return const Padding(
@@ -57,7 +42,11 @@ class _ProductsSectionState extends State<ProductsSection> {
                   child: CircularProgressIndicator(),
                 );
               }
-              if (snap.hasError) return _error();
+              if (snap.hasError) {
+                return Text(AppStrings.somethingWrong,
+                    style: AppTextStyles.bodyLarge
+                        .copyWith(color: brand.textSecondary));
+              }
               final products = snap.data ?? const [];
               if (products.isEmpty) {
                 return Text(AppStrings.noProducts,
@@ -65,7 +54,7 @@ class _ProductsSectionState extends State<ProductsSection> {
                         .copyWith(color: brand.textSecondary));
               }
               final shown =
-                  widget.showAll ? products : products.take(6).toList();
+                  showAll ? products : products.take(6).toList();
               return Column(
                 children: [
                   ScrollReveal(
@@ -73,12 +62,11 @@ class _ProductsSectionState extends State<ProductsSection> {
                       mobile: 1,
                       tablet: 2,
                       desktop: 3,
-                      children: shown
-                          .map((p) => ProductCard(product: p))
-                          .toList(),
+                      children:
+                          shown.map((p) => ProductCard(product: p)).toList(),
                     ),
                   ),
-                  if (!widget.showAll) ...[
+                  if (!showAll) ...[
                     const SizedBox(height: AppDimens.xl),
                     SecondaryButton(
                       text: AppStrings.viewAllProducts,
@@ -92,18 +80,6 @@ class _ProductsSectionState extends State<ProductsSection> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _error() {
-    return Column(
-      children: [
-        Text(AppStrings.somethingWrong,
-            style: AppTextStyles.bodyLarge
-                .copyWith(color: context.brand.textSecondary)),
-        const SizedBox(height: AppDimens.md),
-        PrimaryButton(text: AppStrings.tryAgain, onPressed: _retry),
-      ],
     );
   }
 }

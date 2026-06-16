@@ -77,4 +77,35 @@ class UserRepository {
     await save(updated);
     return updated;
   }
+
+  // ---- Admin-only operations (guarded by security rules) ----
+
+  /// Live stream of all customers for the admin panel, newest first.
+  Stream<List<UserProfile>> streamAll() {
+    return _col.snapshots().map((s) {
+      final users =
+          s.docs.map((d) => UserProfile.fromMap(d.id, d.data())).toList();
+      users.sort((a, b) => (b.createdAt ?? DateTime(0))
+          .compareTo(a.createdAt ?? DateTime(0)));
+      return users;
+    });
+  }
+
+  /// Live single-customer stream (reflects admin edits in real time).
+  Stream<UserProfile?> streamUser(String uid) {
+    return _col.doc(uid).snapshots().map(
+        (d) => d.exists ? UserProfile.fromMap(uid, d.data()!) : null);
+  }
+
+  Future<void> setRole(String uid, String role) =>
+      _col.doc(uid).update({'role': role});
+
+  Future<void> setDiscount(String uid, double percent) =>
+      _col.doc(uid).update({'discountPercent': percent.clamp(0, 100)});
+
+  Future<void> setBlocked(String uid, bool blocked) =>
+      _col.doc(uid).update({'blocked': blocked});
+
+  Future<void> setNotes(String uid, String notes) =>
+      _col.doc(uid).update({'adminNotes': notes});
 }

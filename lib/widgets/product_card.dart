@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,6 +10,7 @@ import '../core/theme/app_text_styles.dart';
 import '../data/models/product.dart';
 import '../state/cart_controller.dart';
 import 'app_buttons.dart';
+import 'image_carousel.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -27,9 +27,14 @@ class _ProductCardState extends State<ProductCard> {
       context.push(AppRoutes.productDetailPath(widget.product.slug));
 
   void _addToCart() {
-    CartController.instance.add(widget.product);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${widget.product.name} added to cart')),
+    final added = CartController.instance.add(widget.product);
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(added
+            ? '${widget.product.name} added to cart'
+            : 'Only ${widget.product.stock} in stock — already in your cart'),
+      ),
     );
   }
 
@@ -146,66 +151,40 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Widget _image(Product p) {
-    return SizedBox(
-      height: 200,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primaryGreen.withValues(alpha: 0.07),
-                  AppColors.gold.withValues(alpha: 0.10),
+    return Stack(
+      children: [
+        ImageCarousel(
+          imageUrls: p.imageUrls,
+          height: 230,
+          padding: const EdgeInsets.all(AppDimens.lg),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppDimens.radiusXl),
+          ),
+        ),
+        if (p.hasDiscount)
+          Positioned(
+            top: AppDimens.md,
+            left: AppDimens.md,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.berry,
+                borderRadius: BorderRadius.circular(AppDimens.radiusPill),
+                boxShadow: [
+                  BoxShadow(
+                      color: AppColors.berry.withValues(alpha: 0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3)),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(AppDimens.radiusXl),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimens.lg),
-              child: AnimatedScale(
-                duration: AppDurations.medium,
-                scale: _hover ? 1.06 : 1.0,
-                child: CachedNetworkImage(
-                  imageUrl: p.firstImage ?? '',
-                  fit: BoxFit.contain,
-                  placeholder: (c, _) => const Center(
-                    child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2)),
-                  ),
-                  errorWidget: (c, _, __) => Icon(Icons.eco_rounded,
-                      size: 56,
-                      color: AppColors.primaryGreen.withValues(alpha: 0.4)),
-                ),
-              ),
+              child: Text('${p.discountPercent}% OFF',
+                  style: AppTextStyles.bodySmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11)),
             ),
           ),
-          if (p.hasDiscount)
-            Positioned(
-              top: AppDimens.md,
-              left: AppDimens.md,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.berry,
-                  borderRadius: BorderRadius.circular(AppDimens.radiusPill),
-                ),
-                child: Text('${p.discountPercent}% OFF',
-                    style: AppTextStyles.bodySmall.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11)),
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 }

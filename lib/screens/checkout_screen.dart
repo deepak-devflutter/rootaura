@@ -10,7 +10,9 @@ import '../core/theme/app_text_styles.dart';
 import '../core/utils/responsive.dart';
 import '../data/models/address.dart';
 import '../data/models/order.dart';
+import '../data/models/user_profile.dart';
 import '../data/order_repository.dart';
+import '../data/products_repository.dart';
 import '../data/user_repository.dart';
 import '../state/auth_controller.dart';
 import '../state/cart_controller.dart';
@@ -30,6 +32,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? _addressId;
   String _payment = PaymentMethod.cod;
   final _upiRef = TextEditingController();
+  final _note = TextEditingController();
   bool _placing = false;
 
   @override
@@ -41,6 +44,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void dispose() {
     _upiRef.dispose();
+    _note.dispose();
     super.dispose();
   }
 
@@ -73,6 +77,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
     if (cart.isEmpty || profile == null) return;
+    if (profile.blocked) {
+      _toast('Your account can’t place orders right now. Please contact us.');
+      return;
+    }
     if (_payment == PaymentMethod.upi && _upiRef.text.trim().length < 4) {
       _toast('Enter the UPI reference/UTR after paying.');
       return;
@@ -82,6 +90,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final subtotal = cart.subtotal;
       final delivery = ShopConfig.deliveryFor(subtotal);
+      final discount =
+          OrderSummary.discountFor(subtotal, profile.discountPercent);
       final order = ShopOrder(
         id: '',
         uid: profile.uid,
@@ -92,14 +102,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         subtotal: subtotal,
         delivery: delivery,
         tax: 0,
-        total: subtotal + delivery,
+        discountPercent: profile.discountPercent,
+        discountAmount: discount,
+        total: subtotal + delivery - discount,
         paymentMethod: _payment,
         paymentStatus: PaymentStatus.pending,
         status: OrderStatus.placed,
         upiRef: _payment == PaymentMethod.upi ? _upiRef.text.trim() : null,
+        note: _note.text.trim().isEmpty ? null : _note.text.trim(),
         createdAt: DateTime.now(),
       );
       final id = await OrderRepository.instance.place(order);
+      // Reduce stock atomically; non-fatal if it fails (admin reconciles).
+      final items = cart.items;
+      try {
+        await ProductsRepository.instance.decrementStock(items);
+      } catch (_) {}
       cart.clear();
       if (mounted) context.go(AppRoutes.orderSuccessPath(id));
     } catch (e) {
@@ -125,6 +143,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               return _emptyState(context);
             }
             final isMobile = Responsive.isMobile(context);
+            final profile = AuthController.instance.profile;
 
             final left = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,14 +152,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     style: AppTextStyles.h1
                         .copyWith(color: context.brand.textPrimary)),
                 const SizedBox(height: AppDimens.lg),
+                if (profile?.blocked ?? false) _blockedBanner(),
+                if (profile?.hasDiscount ?? false) _discountBanner(profile!),
                 _addressSection(),
                 const SizedBox(height: AppDimens.xl),
                 _paymentSection(),
+                const SizedBox(height: AppDimens.xl),
+                _noteSection(),
               ],
             );
 
             final right = OrderSummary(
               subtotal: cart.subtotal,
+              discountPercent: profile?.discountPercent ?? 0,
               actionLabel: 'Place Order',
               busy: _placing,
               onAction: _placeOrder,
@@ -165,6 +189,84 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
     );
   }
+
+  Widget _noteSection() {
+    final brand = context.brand;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('Order Note (optional)'),
+        TextField(
+          controller: _note,
+          maxLines: 3,
+          maxLength: 300,
+          decoration: InputDecoration(
+            hintText:
+                'Any special request? e.g. delivery instructions, gift note…',
+            filled: true,
+            fillColor: brand.cardSoft,
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.md, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+              borderSide: BorderSide(color: brand.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+              borderSide:
+                  const BorderSide(color: AppColors.primaryGreen, width: 1.6),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _blockedBanner() => Container(
+        margin: const EdgeInsets.only(bottom: AppDimens.md),
+        padding: const EdgeInsets.all(AppDimens.md),
+        decoration: BoxDecoration(
+          color: AppColors.berry.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+        ),
+        child: Row(children: [
+          const Icon(Icons.block_rounded, color: AppColors.berry, size: 20),
+          const SizedBox(width: AppDimens.sm),
+          Expanded(
+            child: Text(
+                'Your account is currently restricted from placing orders. '
+                'Please contact us for help.',
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: AppColors.berry)),
+          ),
+        ]),
+      );
+
+  Widget _discountBanner(UserProfile profile) => Container(
+        margin: const EdgeInsets.only(bottom: AppDimens.md),
+        padding: const EdgeInsets.all(AppDimens.md),
+        decoration: BoxDecoration(
+          color: AppColors.primaryGreen.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+        ),
+        child: Row(children: [
+          const Icon(Icons.local_offer_outlined,
+              color: AppColors.primaryGreen, size: 20),
+          const SizedBox(width: AppDimens.sm),
+          Expanded(
+            child: Text(
+                'A ${profile.discountPercent.toStringAsFixed(0)}% loyalty '
+                'discount is applied to your order.',
+                style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.primaryGreen,
+                    fontWeight: FontWeight.w600)),
+          ),
+        ]),
+      );
 
   Widget _emptyState(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppDimens.section),
@@ -224,15 +326,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           subtitle: 'Pay with cash when your order arrives.',
           onTap: () => setState(() => _payment = PaymentMethod.cod),
         ),
-        const SizedBox(height: AppDimens.sm),
-        _PaymentTile(
-          selected: _payment == PaymentMethod.upi,
-          icon: Icons.qr_code_2_rounded,
-          title: 'UPI (Pay now)',
-          subtitle: 'Pay to our UPI ID and enter the reference below.',
-          onTap: () => setState(() => _payment = PaymentMethod.upi),
-        ),
-        if (_payment == PaymentMethod.upi) ...[
+        if (ShopConfig.upiEnabled) ...[
+          const SizedBox(height: AppDimens.sm),
+          _PaymentTile(
+            selected: _payment == PaymentMethod.upi,
+            icon: Icons.qr_code_2_rounded,
+            title: 'UPI (Pay now)',
+            subtitle: 'Pay to our UPI ID and enter the reference below.',
+            onTap: () => setState(() => _payment = PaymentMethod.upi),
+          ),
+        ],
+        if (ShopConfig.upiEnabled && _payment == PaymentMethod.upi) ...[
           const SizedBox(height: AppDimens.md),
           Container(
             padding: const EdgeInsets.all(AppDimens.md),

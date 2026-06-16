@@ -13,6 +13,11 @@ class ShopConfig {
   // Tax is treated as included in the displayed price for now (GST inclusive).
   static const double taxPercent = 0;
 
+  // ---- Payments ----
+  // COD is always on. Flip [upiEnabled] to true to re-enable the manual UPI
+  // option (or later, when Razorpay auto-confirm is wired up).
+  static const bool upiEnabled = false;
+
   // ---- UPI (manual confirmation flow) ----
   // TODO(client): set the real UPI ID and payee name.
   static const String upiId = 'rootaura@upi';

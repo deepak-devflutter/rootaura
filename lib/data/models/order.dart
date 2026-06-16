@@ -41,12 +41,20 @@ class ShopOrder {
   final double subtotal;
   final double delivery;
   final double tax;
+  final double discountPercent;
+  final double discountAmount;
   final double total;
   final String paymentMethod;
   final String paymentStatus;
   final String status;
   final String? upiRef;
+  final String? note; // customer's special request
   final DateTime createdAt;
+
+  // Shipment (set by admin once dispatched)
+  final String? courier; // e.g. "Blue Dart"
+  final String? trackingId;
+  final String? trackingUrl;
 
   const ShopOrder({
     required this.id,
@@ -59,14 +67,23 @@ class ShopOrder {
     required this.delivery,
     required this.tax,
     required this.total,
+    this.discountPercent = 0,
+    this.discountAmount = 0,
     required this.paymentMethod,
     required this.paymentStatus,
     required this.status,
     required this.createdAt,
     this.upiRef,
+    this.note,
+    this.courier,
+    this.trackingId,
+    this.trackingUrl,
   });
 
   int get itemCount => items.fold(0, (n, i) => n + i.qty);
+
+  bool get hasShipment =>
+      (courier ?? '').isNotEmpty && (trackingId ?? '').isNotEmpty;
 
   factory ShopOrder.fromMap(String id, Map<String, dynamic> m) {
     final ts = m['createdAt'];
@@ -83,11 +100,17 @@ class ShopOrder {
       subtotal: (m['subtotal'] as num?)?.toDouble() ?? 0,
       delivery: (m['delivery'] as num?)?.toDouble() ?? 0,
       tax: (m['tax'] as num?)?.toDouble() ?? 0,
+      discountPercent: (m['discountPercent'] as num?)?.toDouble() ?? 0,
+      discountAmount: (m['discountAmount'] as num?)?.toDouble() ?? 0,
       total: (m['total'] as num?)?.toDouble() ?? 0,
       paymentMethod: m['paymentMethod'] as String? ?? PaymentMethod.cod,
       paymentStatus: m['paymentStatus'] as String? ?? PaymentStatus.pending,
       status: m['status'] as String? ?? OrderStatus.placed,
       upiRef: m['upiRef'] as String?,
+      note: m['note'] as String?,
+      courier: m['courier'] as String?,
+      trackingId: m['trackingId'] as String?,
+      trackingUrl: m['trackingUrl'] as String?,
       createdAt: ts is Timestamp ? ts.toDate() : DateTime.now(),
     );
   }
@@ -101,11 +124,14 @@ class ShopOrder {
         'subtotal': subtotal,
         'delivery': delivery,
         'tax': tax,
+        'discountPercent': discountPercent,
+        'discountAmount': discountAmount,
         'total': total,
         'paymentMethod': paymentMethod,
         'paymentStatus': paymentStatus,
         'status': status,
         'upiRef': upiRef,
+        'note': note,
         'createdAt': FieldValue.serverTimestamp(),
       };
 }

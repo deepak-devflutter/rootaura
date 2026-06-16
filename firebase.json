@@ -15,15 +15,18 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "hosting": {
-    "source": ".",
+    "public": "build/web",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "frameworksBackend": {
-      "region": "asia-east1"
-    }
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
   }
 }
