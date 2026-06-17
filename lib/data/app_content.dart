@@ -15,7 +15,11 @@ class UsageItem {
   final IconData icon;
   final String title;
   final String description;
-  const UsageItem(this.emoji, this.icon, this.title, this.description);
+
+  /// Background dish photo (asset path) — swap per item in assets/images.
+  final String image;
+  const UsageItem(this.emoji, this.icon, this.title, this.description,
+      {this.image = 'assets/images/basket.png'});
 }
 
 class RecipeItem {
@@ -58,18 +62,33 @@ class AppContent {
         'Crunchy, delicious and naturally satisfying.'),
   ];
 
-  // ---- Ways to enjoy ----
+  // ---- Ways to enjoy ---- (image paths are temporary; swap per item later)
   static const List<UsageItem> usages = [
     UsageItem('🥣', Icons.breakfast_dining_rounded, 'Yogurt & Parfaits',
-        'Add a crunchy burst of fruit to yogurt, parfaits and breakfast bowls.'),
+        'Add a crunchy burst of fruit to yogurt, parfaits and breakfast bowls.',
+    image: 'assets/images/Yogurt & Parfaits.png'
+    ),
     UsageItem('🥤', Icons.local_cafe_rounded, 'Smoothies & Shakes',
-        'Blend with milk, yogurt or smoothies for natural fruit flavour.'),
+        'Blend with milk, yogurt or smoothies for natural fruit flavour.',
+        image: 'assets/images/Smoothies & Shakes.png'
+    ),
     UsageItem('🍓', Icons.lunch_dining_rounded, 'Healthy Snacking',
-        'Enjoy straight from the pack for a convenient, guilt-free snack.'),
+        'Enjoy straight from the pack for a convenient, guilt-free snack.',
+        image: 'assets/images/Healthy Snacking.png'
+
+    ),
     UsageItem('🥗', Icons.rice_bowl_rounded, 'Fruit Bowls & Salads',
-        'Add texture, colour and sweetness to fruit bowls and salads.'),
+        'Add texture, colour and sweetness to fruit bowls and salads.',
+        image: 'assets/images/Fruit Bowls & Salads.png'
+    ),
     UsageItem('🍰', Icons.cake_rounded, 'Desserts & Toppings',
-        'Perfect for cakes, ice creams, pancakes, granola and baked treats.'),
+        'Perfect for cakes, ice creams, pancakes, granola and baked treats.',
+        image: 'assets/images/Desserts & Toppings.png'
+    ),
+    UsageItem('🎒', Icons.backpack_rounded, 'On-the-Go Goodness',
+        'Lightweight and mess-free, perfect for any adventure.',
+        image: 'assets/images/On-the-Go Goodness.png'
+    ),
   ];
 
   // ---- Quick recipes ----
