@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_dimens.dart';
@@ -20,6 +21,7 @@ class OrderSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final brand = context.brand;
     return PageScaffold(
+      ambient: true,
       body: SectionContainer(
         maxWidth: 560,
         child: FutureBuilder<ShopOrder?>(
@@ -28,15 +30,7 @@ class OrderSuccessScreen extends StatelessWidget {
             final order = snap.data;
             return Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(AppDimens.lg),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGreen.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check_circle_rounded,
-                      color: AppColors.primaryGreen, size: 56),
-                ),
+                SvgPicture.asset('assets/empty/order-success.svg', width: 150),
                 const SizedBox(height: AppDimens.lg),
                 Text('Order placed!',
                     style:

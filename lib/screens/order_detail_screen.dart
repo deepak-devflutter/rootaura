@@ -26,6 +26,7 @@ class OrderDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
+      ambient: true,
       body: SectionContainer(
         maxWidth: 720,
         child: StreamBuilder<ShopOrder?>(

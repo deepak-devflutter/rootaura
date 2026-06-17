@@ -99,16 +99,21 @@ class _EyebrowChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-      decoration: BoxDecoration(
-        color: AppColors.primaryGreen.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(AppDimens.radiusPill),
-      ),
-      child: Text(
-        text.toUpperCase(),
-        style: AppTextStyles.eyebrow.copyWith(color: AppColors.primaryGreen),
-      ),
+    // Editorial "kicker": a thin gold rule flanking a tracked uppercase label.
+    final line = Container(width: 28, height: 1.5, color: AppColors.gold);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        line,
+        const SizedBox(width: AppDimens.sm + 2),
+        Text(
+          text.toUpperCase(),
+          style: AppTextStyles.eyebrow
+              .copyWith(color: AppColors.gold, letterSpacing: 2.5),
+        ),
+        const SizedBox(width: AppDimens.sm + 2),
+        line,
+      ],
     );
   }
 }

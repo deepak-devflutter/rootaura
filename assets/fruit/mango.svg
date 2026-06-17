@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="mangoBody" cx="40%" cy="32%" r="78%">
+      <stop offset="0%" stop-color="#FBD38D"/>
+      <stop offset="38%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#E07B1A"/>
+    </radialGradient>
+    <linearGradient id="mangoBlush" x1="0%" y1="0%" x2="100%" y2="60%">
+      <stop offset="0%" stop-color="#D6334C" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#D6334C" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mangoSheen" x1="0%" y1="0%" x2="20%" y2="100%">
+      <stop offset="0%" stop-color="#FBF9F4" stop-opacity="0.6"/>
+      <stop offset="60%" stop-color="#FBF9F4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mangoLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7BAE95"/>
+      <stop offset="100%" stop-color="#1E6F43"/>
+    </linearGradient>
+    <radialGradient id="mangoShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#123D2A" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#123D2A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="172" rx="58" ry="12" fill="url(#mangoShadow)"/>
+  <!-- body: classic mango kidney curve -->
+  <path d="M70 60 C108 44 156 56 164 96 C170 128 144 162 102 166 C64 170 34 146 32 112 C30 84 44 70 70 60 Z" fill="url(#mangoBody)"/>
+  <!-- red blush top -->
+  <path d="M70 60 C108 44 156 56 164 96 C150 70 118 60 86 66 C76 68 70 72 64 78 C62 70 64 64 70 60 Z" fill="url(#mangoBlush)"/>
+  <!-- lower shade -->
+  <path d="M102 166 C144 162 170 128 164 96 C166 124 142 152 104 158 C76 162 52 152 40 134 C50 154 74 168 102 166 Z" fill="#E07B1A" opacity="0.5"/>
+  <!-- sheen -->
+  <path d="M70 60 C90 50 116 50 132 58 C112 60 92 70 78 88 C70 98 66 110 66 122 C50 110 46 86 56 72 C60 66 64 62 70 60 Z" fill="url(#mangoSheen)"/>
+  <!-- freeze-dried air-pocket dots / facet hints -->
+  <g fill="#FBF9F4" opacity="0.42">
+    <circle cx="84" cy="96" r="1.4"/>
+    <circle cx="104" cy="112" r="1.2"/>
+    <circle cx="128" cy="100" r="1.2"/>
+    <circle cx="74" cy="120" r="1"/>
+    <circle cx="118" cy="130" r="1"/>
+  </g>
+  <g stroke="#E07B1A" stroke-width="0.8" opacity="0.3" fill="none">
+    <path d="M96 90 C112 96 124 110 128 126"/>
+    <path d="M78 108 C92 112 100 122 102 134"/>
+  </g>
+  <!-- stem + leaf -->
+  <path d="M88 58 C86 48 88 40 96 36 C92 44 92 52 96 60 Z" fill="#1E6F43"/>
+  <path d="M96 38 C108 30 124 30 136 38 C124 40 112 46 104 56 C100 50 98 44 96 38 Z" fill="url(#mangoLeaf)"/>
+  <path d="M104 50 C112 46 120 44 128 44" stroke="#123D2A" stroke-width="0.8" opacity="0.5" fill="none"/>
+</svg>

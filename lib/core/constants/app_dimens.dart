@@ -10,18 +10,27 @@ class AppDimens {
   static const double xl = 32;
   static const double xxl = 48;
   static const double xxxl = 64;
-  static const double section = 100; // vertical section padding (desktop)
-  static const double sectionMobile = 64;
+  static const double section = 128; // vertical section padding (desktop)
+  static const double sectionMobile = 72;
 
-  // Radius
+  // Radius — crisp-small for chips/inputs, soft-organic for cards/images
   static const double radiusSm = 12;
-  static const double radiusMd = 18;
+  static const double radiusMd = 14;
   static const double radiusLg = 24;
-  static const double radiusXl = 32;
+  static const double radiusXl = 30;
   static const double radiusPill = 999;
+
+  // Interaction tokens (so widgets stop hardcoding transforms)
+  static const double hoverLiftY = -6; // cards
+  static const double rowLiftY = -4; // list rows
+  static const double buttonLiftY = -2;
+  static const double pressedScale = 0.97;
+  static const double hoverScale = 1.015;
 
   // Layout
   static const double maxContentWidth = 1200;
+  static const double contentNarrow = 920; // editorial / about
+  static const double contentWide = 1320; // testimonials / galleries
   static const double headerHeight = 76;
   static const double cardWidth = 320;
 

@@ -133,6 +133,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
+      ambient: true,
       body: SectionContainer(
         child: ListenableBuilder(
           listenable: Listenable.merge(

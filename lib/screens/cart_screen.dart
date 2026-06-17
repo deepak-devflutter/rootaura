@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_dimens.dart';
@@ -22,6 +23,7 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
+      ambient: true,
       body: SectionContainer(
         child: ListenableBuilder(
           listenable: CartController.instance,
@@ -154,8 +156,7 @@ class _EmptyCart extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppDimens.section),
       child: Column(
         children: [
-          Icon(Icons.shopping_cart_outlined,
-              size: 64, color: brand.textSecondary),
+          SvgPicture.asset('assets/empty/empty-cart.svg', width: 220),
           const SizedBox(height: AppDimens.md),
           Text('Your cart is empty',
               style: AppTextStyles.h2.copyWith(color: brand.textPrimary)),

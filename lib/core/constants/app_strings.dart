@@ -30,6 +30,7 @@ class AppStrings {
       'Nature’s nutrition, locked in every crunchy bite.';
   static const String heroCtaPrimary = 'Explore Products';
   static const String heroCtaSecondary = 'Buy on Amazon';
+  static const String heroSocialProof = 'Loved by 2,000+ happy snackers';
 
   // ---- Trust strip / quick badges ----
   static const String trust1Title = '100% Real Fruit';

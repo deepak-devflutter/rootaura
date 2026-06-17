@@ -1,51 +1,66 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_dimens.dart';
+import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/models/order.dart';
 
-/// Small coloured pill for an order or payment status.
+/// Maps an order/payment status to a single earthy colour ramp (green ladder +
+/// gold + berry) — no foreign blues/indigos. Exposed so the order timeline can
+/// reuse the exact same styling.
+Color statusColor(String status, {bool isPayment = false}) {
+  if (isPayment) {
+    return status == PaymentStatus.paid ? AppColors.primaryGreen : AppColors.gold;
+  }
+  switch (status) {
+    case OrderStatus.delivered:
+      return AppColors.darkGreen;
+    case OrderStatus.shipped:
+      return AppColors.primaryGreen;
+    case OrderStatus.packed:
+      return AppColors.midGreen;
+    case OrderStatus.confirmed:
+      return AppColors.softGreen;
+    case OrderStatus.cancelled:
+      return AppColors.berry;
+    default:
+      return AppColors.gold; // placed
+  }
+}
+
+/// A dot + tinted pill with an uppercase eyebrow label.
 class StatusBadge extends StatelessWidget {
   final String status;
   final bool isPayment;
   const StatusBadge(this.status, {super.key, this.isPayment = false});
 
-  Color get _color {
-    if (isPayment) {
-      return status == PaymentStatus.paid
-          ? const Color(0xFF1E8E4E)
-          : const Color(0xFFB7791F);
-    }
-    switch (status) {
-      case OrderStatus.delivered:
-        return const Color(0xFF1E8E4E);
-      case OrderStatus.shipped:
-        return const Color(0xFF0E7C86);
-      case OrderStatus.packed:
-        return const Color(0xFF4F46E5);
-      case OrderStatus.confirmed:
-        return const Color(0xFF2563EB);
-      case OrderStatus.cancelled:
-        return const Color(0xFFD64550);
-      default:
-        return const Color(0xFFB7791F); // placed
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final color = statusColor(status, isPayment: isPayment);
     final label = isPayment
         ? (status == PaymentStatus.paid ? 'Paid' : 'Payment pending')
         : OrderStatus.label(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(AppDimens.radiusPill),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
-      child: Text(label,
-          style: AppTextStyles.bodySmall
-              .copyWith(color: _color, fontWeight: FontWeight.w700, fontSize: 12)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(label.toUpperCase(),
+              style: AppTextStyles.eyebrow.copyWith(
+                  color: color, fontSize: 11, letterSpacing: 0.8)),
+        ],
+      ),
     );
   }
 }

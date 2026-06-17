@@ -32,7 +32,6 @@ class HeroSection extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Decorative soft blobs
           Positioned(
             top: -120,
             right: -100,
@@ -97,8 +96,7 @@ class HeroSection extends StatelessWidget {
         crossAxisAlignment: cross,
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.primaryGreen.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(AppDimens.radiusPill),
@@ -127,7 +125,7 @@ class HeroSection extends StatelessWidget {
                 TextSpan(text: '${AppStrings.heroTitleLine1}\n'),
                 TextSpan(
                   text: AppStrings.heroTitleLine2,
-                  style: TextStyle(color: AppColors.primaryGreen),
+                  style: const TextStyle(color: AppColors.primaryGreen),
                 ),
               ],
             ),
@@ -144,8 +142,7 @@ class HeroSection extends StatelessWidget {
           Wrap(
             spacing: AppDimens.md,
             runSpacing: AppDimens.md,
-            alignment:
-                isMobile ? WrapAlignment.center : WrapAlignment.start,
+            alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
             children: [
               PrimaryButton(
                   text: AppStrings.heroCtaPrimary, onPressed: onExplore),
@@ -156,6 +153,8 @@ class HeroSection extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: AppDimens.lg),
+          _socialProof(brand, isMobile),
           const SizedBox(height: AppDimens.xl),
           _miniTrust(brand, isMobile),
         ],
@@ -163,11 +162,29 @@ class HeroSection extends StatelessWidget {
     );
   }
 
+  Widget _socialProof(BrandColors brand, bool isMobile) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ...List.generate(
+            5,
+            (_) => const Icon(Icons.star_rounded,
+                size: 18, color: AppColors.gold)),
+        const SizedBox(width: AppDimens.sm),
+        Flexible(
+          child: Text(AppStrings.heroSocialProof,
+              style: AppTextStyles.bodySmall.copyWith(
+                  color: brand.textSecondary, fontWeight: FontWeight.w600)),
+        ),
+      ],
+    );
+  }
+
   Widget _miniTrust(BrandColors brand, bool isMobile) {
     final items = [
-      AppContent.whyChoose[1], // No preservatives
-      AppContent.whyChoose[0], // Freeze-dried
-      AppContent.whyChoose[5], // Real fruit real taste
+      AppContent.whyChoose[1],
+      AppContent.whyChoose[0],
+      AppContent.whyChoose[5],
     ];
     return Wrap(
       spacing: AppDimens.lg,
@@ -207,15 +224,29 @@ class HeroSection extends StatelessWidget {
             padding: const EdgeInsets.all(AppDimens.lg),
             child: Image.asset(AppAssets.heroBowl, fit: BoxFit.contain),
           ),
+          const Positioned(
+              top: -14,
+              left: -10,
+              child: _FloatingFruit('strawberry', size: 66, dy: 12)),
+          const Positioned(
+              top: 18,
+              right: -22,
+              child: _FloatingFruit('mango',
+                  size: 74, dy: 16, period: Duration(seconds: 6))),
+          const Positioned(
+              bottom: 6,
+              left: -18,
+              child: _FloatingFruit('kiwi',
+                  size: 60, dy: 14, period: Duration(seconds: 7))),
+          const Positioned(
+              bottom: -10,
+              right: 24,
+              child: _FloatingFruit('blueberry',
+                  size: 48, dy: 10, period: Duration(seconds: 5))),
           Positioned(
             top: -6,
             right: 8,
-            child: SvgPicture.asset(AppAssets.sparkle, width: 28),
-          ),
-          Positioned(
-            bottom: 18,
-            left: -6,
-            child: SvgPicture.asset(AppAssets.sparkle, width: 20),
+            child: SvgPicture.asset(AppAssets.sparkle, width: 24),
           ),
         ],
       ),
@@ -227,6 +258,56 @@ class HeroSection extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    );
+  }
+}
+
+/// A fruit illustration that gently floats up and down (reduced-motion safe).
+class _FloatingFruit extends StatefulWidget {
+  final String fruit;
+  final double size;
+  final double dy;
+  final Duration period;
+  const _FloatingFruit(this.fruit,
+      {this.size = 60, this.dy = 12, this.period = const Duration(seconds: 5)});
+
+  @override
+  State<_FloatingFruit> createState() => _FloatingFruitState();
+}
+
+class _FloatingFruitState extends State<_FloatingFruit>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: widget.period);
+
+  @override
+  void initState() {
+    super.initState();
+    _c.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final img =
+        SvgPicture.asset('assets/fruit/${widget.fruit}.svg', width: widget.size);
+    if (reduce) return img;
+    return AnimatedBuilder(
+      animation: CurvedAnimation(parent: _c, curve: Curves.easeInOut),
+      builder: (context, child) {
+        final v = (_c.value - 0.5) * 2;
+        return Transform.translate(
+          offset: Offset(0, v * widget.dy),
+          child: Transform.rotate(angle: v * 0.05, child: child),
+        );
+      },
+      child: img,
     );
   }
 }

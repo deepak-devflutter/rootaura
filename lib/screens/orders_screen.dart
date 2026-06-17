@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_dimens.dart';
@@ -22,6 +23,7 @@ class OrdersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final uid = AuthController.instance.user?.uid;
     return PageScaffold(
+      ambient: true,
       body: SectionContainer(
         maxWidth: 820,
         child: Column(
@@ -63,8 +65,7 @@ class OrdersScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppDimens.xxl),
       child: Column(
         children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 56, color: brand.textSecondary),
+          SvgPicture.asset('assets/empty/no-orders.svg', width: 200),
           const SizedBox(height: AppDimens.md),
           Text('No orders yet',
               style: AppTextStyles.h3.copyWith(color: brand.textPrimary)),

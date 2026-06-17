@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+  <defs>
+    <radialGradient id="ecBg" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#EDF3EE"/>
+      <stop offset="100%" stop-color="#FBF9F4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ecPouch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2E8B57"/>
+      <stop offset="55%" stop-color="#1E6F43"/>
+      <stop offset="100%" stop-color="#123D2A"/>
+    </linearGradient>
+    <linearGradient id="ecPouchSheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7BAE95" stop-opacity="0.55"/>
+      <stop offset="40%" stop-color="#7BAE95" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ecGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EADFC6"/>
+      <stop offset="100%" stop-color="#B0852F"/>
+    </linearGradient>
+    <radialGradient id="ecBerry" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#E8A0AB"/>
+      <stop offset="45%" stop-color="#D6334C"/>
+      <stop offset="100%" stop-color="#B81F38"/>
+    </radialGradient>
+    <radialGradient id="ecMango" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#FBD38D"/>
+      <stop offset="50%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#E07B1A"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="120" cy="92" rx="98" ry="80" fill="url(#ecBg)"/>
+  <ellipse cx="120" cy="172" rx="66" ry="9" fill="#123D2A" opacity="0.12"/>
+  <!-- pouch body -->
+  <path d="M82 64 q38 -10 76 0 l6 84 q-44 12 -88 0 Z" fill="url(#ecPouch)"/>
+  <path d="M82 64 q38 -10 76 0 l6 84 q-44 12 -88 0 Z" fill="url(#ecPouchSheen)"/>
+  <!-- top seal -->
+  <path d="M80 58 q40 -11 80 0 l-3 12 q-37 -9 -74 0 Z" fill="url(#ecGold)"/>
+  <path d="M84 56 q36 -8 72 0" fill="none" stroke="#FBF9F4" stroke-width="1.4" opacity="0.5"/>
+  <!-- gold label window -->
+  <rect x="98" y="92" width="44" height="40" rx="9" fill="#FBF9F4" opacity="0.92"/>
+  <rect x="98" y="92" width="44" height="40" rx="9" fill="none" stroke="url(#ecGold)" stroke-width="2"/>
+  <!-- leaf emblem on label -->
+  <path d="M120 102 q11 5 0 22 q-11 -17 0 -22 Z" fill="#1E6F43"/>
+  <path d="M120 104 v18" stroke="#7BAE95" stroke-width="1.2"/>
+  <!-- loose freeze-dried pieces -->
+  <circle cx="64" cy="150" r="11" fill="url(#ecBerry)"/>
+  <circle cx="60" cy="146" r="1.1" fill="#F4D03F"/>
+  <circle cx="68" cy="149" r="1.1" fill="#F4D03F"/>
+  <circle cx="63" cy="153" r="1.1" fill="#F4D03F"/>
+  <circle cx="178" cy="146" r="9" fill="url(#ecMango)"/>
+  <circle cx="46" cy="120" r="6" fill="url(#ecMango)" opacity="0.9"/>
+  <!-- leaf sprig -->
+  <path d="M160 70 q22 -16 34 -38 q-6 26 -34 38 Z" fill="#2E8B57"/>
+  <path d="M174 60 q16 -6 24 -22" fill="none" stroke="#7BAE95" stroke-width="1.4"/>
+  <path d="M150 64 q14 -6 22 -20 q-2 18 -22 20 Z" fill="#1E6F43"/>
+  <!-- sparkles -->
+  <path d="M52 60 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 Z" fill="#B0852F" opacity="0.85"/>
+  <path d="M196 110 l1.5 4.5 l4.5 1.5 l-4.5 1.5 l-1.5 4.5 l-1.5 -4.5 l-4.5 -1.5 l4.5 -1.5 Z" fill="#EADFC6"/>
+</svg>

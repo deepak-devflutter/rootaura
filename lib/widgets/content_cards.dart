@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_dimens.dart';
-import '../core/constants/app_durations.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/app_content.dart';
+import 'lift_card.dart';
 
-/// Soft, layered shadow shared by all cards for a consistent premium depth.
-List<BoxShadow> _cardShadow(BrandColors brand, {bool raised = false}) => [
-      BoxShadow(
-        color: brand.shadow,
-        blurRadius: raised ? 40 : 24,
-        offset: Offset(0, raised ? 18 : 10),
-      ),
-    ];
-
-/// Base card chrome so every tile shares radius, border, padding and shadow.
+/// Base card chrome — a static "specimen" surface resting at e2 (via LiftCard).
 class _Tile extends StatelessWidget {
   final Widget child;
-  final EdgeInsets padding;
+  final EdgeInsetsGeometry padding;
   const _Tile({
     required this.child,
     this.padding = const EdgeInsets.all(AppDimens.lg),
@@ -26,39 +17,32 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = context.brand;
-    return Container(
-      width: double.infinity,
-      padding: padding,
-      decoration: BoxDecoration(
-        color: brand.card,
-        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-        border: Border.all(color: brand.border),
-        boxShadow: _cardShadow(brand),
-      ),
-      child: child,
-    );
+    return LiftCard(interactive: false, padding: padding, child: child);
   }
 }
 
-/// Rounded icon tile used inside cards.
+/// Rounded icon tile used inside cards; tints gold when its card is hovered.
 class IconBadge extends StatelessWidget {
   final IconData icon;
   final double size;
-  const IconBadge(this.icon, {super.key, this.size = 26});
+  final bool gold;
+  const IconBadge(this.icon, {super.key, this.size = 26, this.gold = false});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final c = gold ? AppColors.gold : AppColors.primaryGreen;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
-          AppColors.primaryGreen.withValues(alpha: 0.14),
-          AppColors.softGreen.withValues(alpha: 0.20),
+          c.withValues(alpha: 0.14),
+          (gold ? AppColors.goldSoft : AppColors.softGreen)
+              .withValues(alpha: gold ? 0.45 : 0.20),
         ]),
         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
       ),
-      child: Icon(icon, color: AppColors.primaryGreen, size: size),
+      child: Icon(icon, color: c, size: size),
     );
   }
 }
@@ -110,53 +94,30 @@ class TrustPill extends StatelessWidget {
   }
 }
 
-/// Feature / why-choose / storage card. Fills cell height; hover-lifts.
-class InfoCard extends StatefulWidget {
+/// Feature / why-choose / storage card. Fills cell height; specimen-lifts on
+/// hover with a gold icon tint.
+class InfoCard extends StatelessWidget {
   final InfoItem item;
   const InfoCard({super.key, required this.item});
 
   @override
-  State<InfoCard> createState() => _InfoCardState();
-}
-
-class _InfoCardState extends State<InfoCard> {
-  bool _hover = false;
-
-  @override
   Widget build(BuildContext context) {
     final brand = context.brand;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: AnimatedContainer(
-        duration: AppDurations.medium,
-        curve: Curves.easeOut,
-        transform: Matrix4.identity()
-          ..translateByDouble(0.0, _hover ? -6.0 : 0.0, 0.0, 1.0),
-        padding: const EdgeInsets.all(AppDimens.lg),
-        decoration: BoxDecoration(
-          color: brand.card,
-          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-          border: Border.all(
-              color: _hover
-                  ? AppColors.primaryGreen.withValues(alpha: 0.35)
-                  : brand.border),
-          boxShadow: _cardShadow(brand, raised: _hover),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IconBadge(widget.item.icon),
-            const SizedBox(height: AppDimens.md),
-            Text(widget.item.title,
-                style: AppTextStyles.h3
-                    .copyWith(color: brand.textPrimary, fontSize: 18)),
-            const SizedBox(height: AppDimens.sm),
-            Text(widget.item.subtitle,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: brand.textSecondary)),
-          ],
-        ),
+    return LiftCard(
+      padding: const EdgeInsets.all(AppDimens.lg),
+      builder: (context, hovered) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconBadge(item.icon, gold: hovered),
+          const SizedBox(height: AppDimens.md),
+          Text(item.title,
+              style: AppTextStyles.h3
+                  .copyWith(color: brand.textPrimary, fontSize: 18)),
+          const SizedBox(height: AppDimens.sm),
+          Text(item.subtitle,
+              style:
+                  AppTextStyles.bodyMedium.copyWith(color: brand.textSecondary)),
+        ],
       ),
     );
   }

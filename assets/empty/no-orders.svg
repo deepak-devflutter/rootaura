@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+  <defs>
+    <radialGradient id="noBg" cx="50%" cy="44%" r="60%">
+      <stop offset="0%" stop-color="#EDF3EE"/>
+      <stop offset="100%" stop-color="#FBF9F4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="noBoxFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EADFC6"/>
+      <stop offset="100%" stop-color="#D8C49A"/>
+    </linearGradient>
+    <linearGradient id="noBoxLeft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C9B488"/>
+      <stop offset="100%" stop-color="#D8C49A"/>
+    </linearGradient>
+    <linearGradient id="noBoxLid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F3EAD6"/>
+      <stop offset="100%" stop-color="#E2D2AE"/>
+    </linearGradient>
+    <linearGradient id="noLeaf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2E8B57"/>
+      <stop offset="100%" stop-color="#1E6F43"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="120" cy="96" rx="98" ry="80" fill="url(#noBg)"/>
+  <ellipse cx="120" cy="170" rx="68" ry="9" fill="#123D2A" opacity="0.12"/>
+  <!-- box body -->
+  <path d="M70 92 l50 -16 v74 l-50 -14 Z" fill="url(#noBoxLeft)"/>
+  <path d="M170 92 l-50 -16 v74 l50 -14 Z" fill="url(#noBoxFront)"/>
+  <!-- inner shadow -->
+  <path d="M84 86 l36 -11 l36 11 l-36 12 Z" fill="#B9A476"/>
+  <!-- lid flaps -->
+  <path d="M120 75 l-50 17 l14 -26 l36 -9 Z" fill="url(#noBoxLid)"/>
+  <path d="M120 75 l50 17 l-14 -26 l-36 -9 Z" fill="#E7D7B3"/>
+  <path d="M120 66 v9" stroke="#C9B488" stroke-width="1.4"/>
+  <!-- tape seam -->
+  <path d="M120 98 v52" stroke="#C9B488" stroke-width="1.4" opacity="0.7"/>
+  <!-- gold band -->
+  <path d="M120 76 v74" stroke="#B0852F" stroke-width="1" opacity="0.35"/>
+  <!-- leaf resting on box -->
+  <path d="M120 72 q26 -20 40 -44 q-6 32 -40 44 Z" fill="url(#noLeaf)"/>
+  <path d="M120 72 q22 -16 36 -38" fill="none" stroke="#7BAE95" stroke-width="1.4"/>
+  <path d="M134 56 q8 -4 12 -12" fill="none" stroke="#7BAE95" stroke-width="1.2"/>
+  <path d="M128 64 q8 -4 12 -12" fill="none" stroke="#7BAE95" stroke-width="1.2"/>
+  <!-- small leaf accent -->
+  <path d="M108 70 q-14 -10 -20 -24 q4 18 20 24 Z" fill="#7BAE95"/>
+  <!-- sparkles -->
+  <path d="M58 70 l1.6 4.8 l4.8 1.6 l-4.8 1.6 l-1.6 4.8 l-1.6 -4.8 l-4.8 -1.6 l4.8 -1.6 Z" fill="#B0852F" opacity="0.85"/>
+  <path d="M184 118 l1.4 4.2 l4.2 1.4 l-4.2 1.4 l-1.4 4.2 l-1.4 -4.2 l-4.2 -1.4 l4.2 -1.4 Z" fill="#EADFC6"/>
+</svg>

@@ -16,6 +16,7 @@ import '../../screens/profile_screen.dart';
 import '../../screens/sign_in_screen.dart';
 import '../../state/auth_controller.dart';
 import '../constants/app_durations.dart';
+import '../theme/app_motion.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -130,12 +131,25 @@ class AppRouter {
   static CustomTransitionPage<void> _fade(GoRouterState state, Widget child) {
     return CustomTransitionPage<void>(
       key: state.pageKey,
-      transitionDuration: AppDurations.medium,
+      transitionDuration: AppDurations.page,
+      reverseTransitionDuration: AppDurations.medium,
       child: child,
-      transitionsBuilder: (c, anim, sec, child) => FadeTransition(
-        opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
-        child: child,
-      ),
+      transitionsBuilder: (c, anim, sec, child) {
+        final curved = CurvedAnimation(parent: anim, curve: AppCurves.emphasized);
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.018),
+              end: Offset.zero,
+            ).animate(curved),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 1.01, end: 1.0).animate(curved),
+              child: child,
+            ),
+          ),
+        );
+      },
     );
   }
 }

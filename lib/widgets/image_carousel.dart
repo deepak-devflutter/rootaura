@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../core/constants/app_dimens.dart';
 import '../core/constants/app_durations.dart';
@@ -19,6 +20,9 @@ class ImageCarousel extends StatefulWidget {
   final bool showArrows;
   final EdgeInsets padding;
 
+  /// Appetising fruit illustration shown when there are no photos / one fails.
+  final String? fallbackAsset;
+
   const ImageCarousel({
     super.key,
     required this.imageUrls,
@@ -27,6 +31,7 @@ class ImageCarousel extends StatefulWidget {
     this.borderRadius,
     this.showArrows = true,
     this.padding = const EdgeInsets.all(AppDimens.xl),
+    this.fallbackAsset,
   });
 
   @override
@@ -77,9 +82,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
           alignment: Alignment.center,
           children: [
             if (urls.isEmpty)
-              Icon(Icons.eco_rounded,
-                  size: 72,
-                  color: AppColors.primaryGreen.withValues(alpha: 0.4))
+              Padding(padding: widget.padding, child: _fallback())
             else
               PageView.builder(
                 controller: _controller,
@@ -100,9 +103,11 @@ class _ImageCarouselState extends State<ImageCarousel> {
                               height: 24,
                               child:
                                   CircularProgressIndicator(strokeWidth: 2))),
-                      errorWidget: (c, _, __) => Icon(Icons.broken_image_outlined,
-                          size: 48,
-                          color: AppColors.primaryGreen.withValues(alpha: 0.4)),
+                      errorWidget: (context, url, error) {
+                        debugPrint('IMAGE ERROR: $error');
+                        debugPrint('URL: $url');
+                        return _fallback();
+                      },
                     ),
                   ),
                 ),
@@ -149,6 +154,14 @@ class _ImageCarouselState extends State<ImageCarousel> {
           ? SizedBox(height: widget.height, width: double.infinity, child: inner)
           : AspectRatio(aspectRatio: widget.aspectRatio, child: inner),
     );
+  }
+
+  Widget _fallback() {
+    if (widget.fallbackAsset != null) {
+      return SvgPicture.asset(widget.fallbackAsset!, fit: BoxFit.contain);
+    }
+    return Icon(Icons.eco_rounded,
+        size: 64, color: AppColors.primaryGreen.withValues(alpha: 0.4));
   }
 
   Widget _arrow(IconData icon, int dir) {

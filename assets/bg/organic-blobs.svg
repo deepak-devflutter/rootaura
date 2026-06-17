@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <radialGradient id="blobForest" cx="0.4" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#2E8B57"/>
+      <stop offset="1" stop-color="#1E6F43"/>
+    </radialGradient>
+    <radialGradient id="blobSage" cx="0.45" cy="0.4" r="0.8">
+      <stop offset="0" stop-color="#EDF3EE"/>
+      <stop offset="1" stop-color="#7BAE95"/>
+    </radialGradient>
+    <radialGradient id="blobGold" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#EADFC6"/>
+      <stop offset="1" stop-color="#B0852F"/>
+    </radialGradient>
+    <linearGradient id="blobMint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EDF3EE"/>
+      <stop offset="1" stop-color="#7BAE95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Three soft overlapping organic blobs -->
+  <g opacity="0.14">
+    <!-- Blob 1: upper-left forest -->
+    <path d="M 150 90
+             C 260 40 380 60 430 150
+             C 480 240 430 330 320 360
+             C 200 392 90 350 60 250
+             C 34 162 60 130 150 90 Z"
+          fill="url(#blobForest)"/>
+  </g>
+
+  <g opacity="0.16">
+    <!-- Blob 2: lower-right sage/mint -->
+    <path d="M 560 250
+             C 680 210 780 260 790 370
+             C 800 470 720 540 600 540
+             C 480 540 410 470 430 380
+             C 448 300 460 286 560 250 Z"
+          fill="url(#blobSage)"/>
+  </g>
+
+  <g opacity="0.12">
+    <!-- Blob 3: center-right warm gold accent, overlapping both -->
+    <path d="M 470 130
+             C 580 100 660 150 660 250
+             C 660 340 580 400 480 380
+             C 390 362 350 300 370 220
+             C 388 152 400 148 470 130 Z"
+          fill="url(#blobGold)"/>
+  </g>
+
+  <g opacity="0.10">
+    <!-- Blob 4: small bottom-left mint, balancing composition -->
+    <path d="M 120 430
+             C 200 410 270 450 270 520
+             C 270 580 210 600 140 590
+             C 70 580 40 520 60 470
+             C 76 440 84 438 120 430 Z"
+          fill="url(#blobMint)"/>
+  </g>
+</svg>

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="jamunBody" cx="40%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#8B5BB0"/>
+      <stop offset="32%" stop-color="#5B2A83"/>
+      <stop offset="100%" stop-color="#3C1B57"/>
+    </radialGradient>
+    <radialGradient id="jamunBody2" cx="40%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#7A4AA0"/>
+      <stop offset="40%" stop-color="#5B2A83"/>
+      <stop offset="100%" stop-color="#3C1B57"/>
+    </radialGradient>
+    <radialGradient id="jamunBloom" cx="40%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#C3A8D6" stop-opacity="0.55"/>
+      <stop offset="70%" stop-color="#C3A8D6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="jamunLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7BAE95"/>
+      <stop offset="100%" stop-color="#1E6F43"/>
+    </linearGradient>
+    <radialGradient id="jamunShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#123D2A" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#123D2A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="178" rx="50" ry="11" fill="url(#jamunShadow)"/>
+  <!-- back jamun (right) -->
+  <path d="M132 78 C152 78 162 96 160 122 C158 150 142 170 124 170 C108 170 96 152 96 124 C96 96 112 78 132 78 Z" fill="url(#jamunBody2)"/>
+  <path d="M132 78 C152 78 162 96 160 122 C158 150 142 170 124 170 C108 170 96 152 96 124 C96 96 112 78 132 78 Z" fill="url(#jamunBloom)"/>
+  <ellipse cx="122" cy="98" rx="7" ry="11" fill="#C3A8D6" opacity="0.4" transform="rotate(-18 122 98)"/>
+
+  <!-- front jamun (left, oblong olive shape) -->
+  <path d="M82 70 C104 70 116 92 114 124 C112 156 96 180 76 180 C58 180 44 158 44 126 C44 94 60 70 82 70 Z" fill="url(#jamunBody)"/>
+  <path d="M82 70 C104 70 116 92 114 124 C112 156 96 180 76 180 C58 180 44 158 44 126 C44 94 60 70 82 70 Z" fill="url(#jamunBloom)"/>
+  <!-- lower shade -->
+  <path d="M76 180 C96 180 112 156 114 124 C114 138 110 162 96 174 C88 181 78 182 70 178 C72 179 74 180 76 180 Z" fill="#3C1B57" opacity="0.5"/>
+  <!-- glossy highlight -->
+  <ellipse cx="66" cy="96" rx="11" ry="18" fill="#C3A8D6" opacity="0.5" transform="rotate(-16 66 96)"/>
+  <ellipse cx="62" cy="90" rx="4" ry="7" fill="#FBF9F4" opacity="0.55" transform="rotate(-16 62 90)"/>
+  <!-- blossom end dimple -->
+  <circle cx="78" cy="178" r="3" fill="#2A1240" opacity="0.7"/>
+  <circle cx="124" cy="170" r="2.4" fill="#2A1240" opacity="0.6"/>
+  <!-- freeze-dried air pockets / facets -->
+  <g fill="#C3A8D6" opacity="0.5">
+    <circle cx="90" cy="120" r="1.2"/>
+    <circle cx="72" cy="140" r="1.1"/>
+    <circle cx="96" cy="150" r="1"/>
+    <circle cx="140" cy="130" r="1"/>
+  </g>
+  <g fill="#FBF9F4" opacity="0.35">
+    <circle cx="82" cy="130" r="0.9"/>
+    <circle cx="100" cy="110" r="0.8"/>
+  </g>
+  <!-- stem + leaf -->
+  <path d="M82 72 C80 60 82 50 90 44 C86 54 86 62 90 72 Z" fill="#6B4220"/>
+  <path d="M90 46 C102 38 116 38 128 44 C116 46 106 52 100 62 C96 56 92 50 90 46 Z" fill="url(#jamunLeaf)"/>
+  <path d="M100 56 C108 50 116 48 124 48" stroke="#123D2A" stroke-width="0.8" opacity="0.5" fill="none"/>
+</svg>

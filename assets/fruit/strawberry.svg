@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="strawBody" cx="42%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#E8A0AB"/>
+      <stop offset="34%" stop-color="#D6334C"/>
+      <stop offset="100%" stop-color="#B81F38"/>
+    </radialGradient>
+    <linearGradient id="strawSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBF9F4" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#FBF9F4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="strawLeaf" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7BAE95"/>
+      <stop offset="55%" stop-color="#2E8B57"/>
+      <stop offset="100%" stop-color="#1E6F43"/>
+    </linearGradient>
+    <radialGradient id="strawShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#123D2A" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#123D2A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="176" rx="52" ry="12" fill="url(#strawShadow)"/>
+  <!-- body -->
+  <path d="M100 58 C140 58 162 84 158 116 C154 150 126 178 100 178 C74 178 46 150 42 116 C38 84 60 58 100 58 Z" fill="url(#strawBody)"/>
+  <!-- shade on lower right -->
+  <path d="M100 178 C126 178 154 150 158 116 C159 106 158 97 155 90 C150 130 128 168 100 178 Z" fill="#B81F38" opacity="0.45"/>
+  <!-- top sheen -->
+  <path d="M100 58 C140 58 162 84 158 116 C150 92 128 76 100 76 C72 76 50 92 42 116 C38 84 60 58 100 58 Z" fill="url(#strawSheen)"/>
+  <!-- seeds + air pocket facets -->
+  <g fill="#F4D03F">
+    <ellipse cx="86" cy="92" rx="2.4" ry="3.6" transform="rotate(-18 86 92)"/>
+    <ellipse cx="114" cy="92" rx="2.4" ry="3.6" transform="rotate(18 114 92)"/>
+    <ellipse cx="100" cy="104" rx="2.4" ry="3.6"/>
+    <ellipse cx="74" cy="112" rx="2.4" ry="3.6" transform="rotate(-22 74 112)"/>
+    <ellipse cx="126" cy="112" rx="2.4" ry="3.6" transform="rotate(22 126 112)"/>
+    <ellipse cx="90" cy="122" rx="2.4" ry="3.6" transform="rotate(-8 90 122)"/>
+    <ellipse cx="110" cy="122" rx="2.4" ry="3.6" transform="rotate(8 110 122)"/>
+    <ellipse cx="80" cy="138" rx="2.2" ry="3.4" transform="rotate(-16 80 138)"/>
+    <ellipse cx="120" cy="138" rx="2.2" ry="3.4" transform="rotate(16 120 138)"/>
+    <ellipse cx="100" cy="142" rx="2.2" ry="3.4"/>
+    <ellipse cx="92" cy="158" rx="2" ry="3" transform="rotate(-6 92 158)"/>
+    <ellipse cx="108" cy="158" rx="2" ry="3" transform="rotate(6 108 158)"/>
+  </g>
+  <!-- freeze-dried air-pocket dots -->
+  <g fill="#FBF9F4" opacity="0.4">
+    <circle cx="78" cy="100" r="1.2"/>
+    <circle cx="120" cy="130" r="1.1"/>
+    <circle cx="96" cy="150" r="1"/>
+    <circle cx="108" cy="106" r="1"/>
+  </g>
+  <!-- calyx / leaves -->
+  <g>
+    <path d="M100 64 C92 50 80 44 66 44 C76 52 82 58 88 66 C84 60 76 56 68 56 C78 62 86 66 96 70 Z" fill="url(#strawLeaf)"/>
+    <path d="M100 64 C108 50 120 44 134 44 C124 52 118 58 112 66 C116 60 124 56 132 56 C122 62 114 66 104 70 Z" fill="url(#strawLeaf)"/>
+    <path d="M100 60 C96 46 90 38 100 30 C110 38 104 46 100 60 Z" fill="url(#strawLeaf)"/>
+    <path d="M100 56 C95 50 90 50 86 54 C92 58 98 62 100 68 C102 62 108 58 114 54 C110 50 105 50 100 56 Z" fill="#1E6F43" opacity="0.6"/>
+  </g>
+  <!-- stem -->
+  <path d="M99 38 C99 32 101 28 100 22 C103 28 103 34 102 40 Z" fill="#1E6F43"/>
+</svg>

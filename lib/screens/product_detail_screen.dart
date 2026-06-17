@@ -11,6 +11,7 @@ import '../data/models/product.dart';
 import '../data/products_repository.dart';
 import '../state/cart_controller.dart';
 import '../widgets/app_buttons.dart';
+import '../widgets/fruit_art.dart';
 import '../widgets/image_carousel.dart';
 import '../widgets/page_scaffold.dart';
 import '../widgets/qty_stepper.dart';
@@ -86,7 +87,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final brand = context.brand;
     final isMobile = Responsive.isMobile(context);
 
-    final image = ImageCarousel(imageUrls: p.imageUrls);
+    final image =
+        ImageCarousel(imageUrls: p.imageUrls, fallbackAsset: FruitArt.assetFor(p.name));
 
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.start,

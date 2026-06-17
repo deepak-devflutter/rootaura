@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +17,7 @@ import '../data/app_content.dart';
 import '../state/auth_controller.dart';
 import '../state/cart_controller.dart';
 import 'app_buttons.dart';
+import 'brand_icon.dart';
 
 /// Sticky top navigation. Transparent over the hero, solid once scrolled.
 /// On the home page [onNavTap] scrolls to a section; elsewhere it deep-links
@@ -129,14 +132,21 @@ class _AppHeaderState extends State<AppHeader> {
     final brand = context.brand;
     final isDesktop = Responsive.isDesktop(context);
 
-    return AnimatedContainer(
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: _solid ? 14 : 0,
+          sigmaY: _solid ? 14 : 0,
+        ),
+        child: AnimatedContainer(
       duration: AppDurations.medium,
       height: AppDimens.headerHeight,
       padding: EdgeInsets.symmetric(
         horizontal: Responsive.isMobile(context) ? AppDimens.lg : AppDimens.xxxl,
       ),
       decoration: BoxDecoration(
-        color: _solid ? brand.card.withValues(alpha: 0.96) : Colors.transparent,
+        // Frosted glass once scrolled (semi-transparent + backdrop blur above).
+        color: _solid ? brand.card.withValues(alpha: 0.82) : Colors.transparent,
         border: Border(
           bottom: BorderSide(
             color: _solid ? brand.border : Colors.transparent,
@@ -171,11 +181,13 @@ class _AppHeaderState extends State<AppHeader> {
                 const SizedBox(width: AppDimens.xs),
                 IconButton(
                   onPressed: _openMobileMenu,
-                  icon: Icon(Icons.menu_rounded, color: brand.textPrimary),
+                  icon: BrandIcon(BrandIcon.menu, color: brand.textPrimary),
                 ),
               ],
             ],
           ),
+        ),
+      ),
         ),
       ),
     );
@@ -191,14 +203,16 @@ class _AppHeaderState extends State<AppHeader> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              AppStrings.brandName.toUpperCase(),
-              style: AppTextStyles.h3.copyWith(
+              AppStrings.brandName,
+              style: const TextStyle(
+                fontFamily: AppTextStyles.fraunces,
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
                 color: AppColors.darkGreen,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1,
+                letterSpacing: 0.2,
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 5),
             SvgPicture.asset(AppAssets.leaf, width: 18, height: 18),
           ],
         ),
@@ -296,8 +310,7 @@ class _CartButton extends StatelessWidget {
             IconButton(
               tooltip: 'Cart',
               onPressed: () => context.push(AppRoutes.cart),
-              icon: Icon(Icons.shopping_cart_outlined,
-                  color: brand.textPrimary),
+              icon: BrandIcon(BrandIcon.cart, color: brand.textPrimary),
             ),
             if (count > 0)
               Positioned(
@@ -341,12 +354,12 @@ class _AccountButton extends StatelessWidget {
           return IconButton(
             tooltip: 'Sign in',
             onPressed: () => context.push(AppRoutes.signIn),
-            icon: Icon(Icons.person_outline_rounded, color: brand.textPrimary),
+            icon: BrandIcon(BrandIcon.user, color: brand.textPrimary),
           );
         }
         return PopupMenuButton<String>(
           tooltip: 'Account',
-          icon: Icon(Icons.account_circle_outlined, color: brand.textPrimary),
+          icon: BrandIcon(BrandIcon.user, color: brand.textPrimary),
           onSelected: (value) {
             switch (value) {
               case 'profile':

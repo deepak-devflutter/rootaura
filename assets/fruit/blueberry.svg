@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bbBig" cx="40%" cy="32%" r="74%">
+      <stop offset="0%" stop-color="#7C8AC4"/>
+      <stop offset="34%" stop-color="#4A5B9B"/>
+      <stop offset="100%" stop-color="#2E3A6B"/>
+    </radialGradient>
+    <radialGradient id="bbSmall" cx="40%" cy="32%" r="74%">
+      <stop offset="0%" stop-color="#6E7CBC"/>
+      <stop offset="40%" stop-color="#4A5B9B"/>
+      <stop offset="100%" stop-color="#2E3A6B"/>
+    </radialGradient>
+    <radialGradient id="bbBloom" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#AEB9DC" stop-opacity="0.65"/>
+      <stop offset="70%" stop-color="#AEB9DC" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bbCrown" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2E3A6B"/>
+      <stop offset="100%" stop-color="#1B2348"/>
+    </linearGradient>
+    <radialGradient id="bbShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#123D2A" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#123D2A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="176" rx="58" ry="12" fill="url(#bbShadow)"/>
+  <!-- back berry (left) -->
+  <circle cx="64" cy="118" r="38" fill="url(#bbSmall)"/>
+  <circle cx="64" cy="118" r="38" fill="url(#bbBloom)"/>
+  <!-- crown calyx star on back berry -->
+  <g fill="url(#bbCrown)" opacity="0.9">
+    <circle cx="62" cy="98" r="7"/>
+    <path d="M62 98 L57 92 M62 98 L67 92 M62 98 L55 99 M62 98 L69 99 M62 98 L60 104 M62 98 L64 104" stroke="#1B2348" stroke-width="1.6"/>
+  </g>
+  <!-- back berry highlight + air pockets -->
+  <ellipse cx="52" cy="106" rx="9" ry="6" fill="#AEB9DC" opacity="0.45" transform="rotate(-30 52 106)"/>
+  <g fill="#C7CFE8" opacity="0.5"><circle cx="74" cy="128" r="1"/><circle cx="58" cy="134" r="0.9"/></g>
+
+  <!-- right small berry -->
+  <circle cx="142" cy="126" r="30" fill="url(#bbSmall)"/>
+  <circle cx="142" cy="126" r="30" fill="url(#bbBloom)"/>
+  <g fill="url(#bbCrown)" opacity="0.9">
+    <circle cx="140" cy="110" r="5.5"/>
+    <path d="M140 110 L136 105 M140 110 L144 105 M140 110 L134 111 M140 110 L146 111 M140 110 L139 116" stroke="#1B2348" stroke-width="1.4"/>
+  </g>
+  <ellipse cx="132" cy="116" rx="7" ry="4.5" fill="#AEB9DC" opacity="0.45" transform="rotate(-30 132 116)"/>
+  <g fill="#C7CFE8" opacity="0.5"><circle cx="150" cy="134" r="0.9"/></g>
+
+  <!-- front big berry -->
+  <circle cx="104" cy="118" r="46" fill="url(#bbBig)"/>
+  <circle cx="104" cy="118" r="46" fill="url(#bbBloom)"/>
+  <!-- crown calyx star -->
+  <g>
+    <circle cx="102" cy="92" r="9" fill="url(#bbCrown)"/>
+    <g stroke="#1B2348" stroke-width="2" stroke-linecap="round">
+      <path d="M102 92 L94 84"/>
+      <path d="M102 92 L110 84"/>
+      <path d="M102 92 L92 94"/>
+      <path d="M102 92 L112 94"/>
+      <path d="M102 92 L99 101"/>
+      <path d="M102 92 L105 101"/>
+    </g>
+  </g>
+  <!-- big highlight -->
+  <ellipse cx="86" cy="100" rx="13" ry="8" fill="#AEB9DC" opacity="0.5" transform="rotate(-30 86 100)"/>
+  <ellipse cx="80" cy="96" rx="5" ry="3" fill="#FBF9F4" opacity="0.55" transform="rotate(-30 80 96)"/>
+  <!-- freeze-dried air pockets / facet hints -->
+  <g fill="#C7CFE8" opacity="0.5">
+    <circle cx="118" cy="124" r="1.2"/>
+    <circle cx="98" cy="140" r="1.1"/>
+    <circle cx="124" cy="106" r="1"/>
+    <circle cx="84" cy="132" r="1"/>
+  </g>
+</svg>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="pineBody" cx="42%" cy="34%" r="76%">
+      <stop offset="0%" stop-color="#F0C766"/>
+      <stop offset="40%" stop-color="#E0A92E"/>
+      <stop offset="100%" stop-color="#B0852F"/>
+    </radialGradient>
+    <linearGradient id="pineSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBF9F4" stop-opacity="0.45"/>
+      <stop offset="55%" stop-color="#FBF9F4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="pineCrown" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7BAE95"/>
+      <stop offset="50%" stop-color="#2E8B57"/>
+      <stop offset="100%" stop-color="#1E6F43"/>
+    </linearGradient>
+    <linearGradient id="pineScale" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0A92E"/>
+      <stop offset="100%" stop-color="#9A6F22"/>
+    </linearGradient>
+    <radialGradient id="pineShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#123D2A" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#123D2A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="180" rx="46" ry="11" fill="url(#pineShadow)"/>
+  <!-- body -->
+  <path d="M100 70 C128 70 144 88 144 120 C144 154 126 178 100 178 C74 178 56 154 56 120 C56 88 72 70 100 70 Z" fill="url(#pineBody)"/>
+  <!-- shade right -->
+  <path d="M100 178 C126 178 144 154 144 120 C144 104 140 92 132 84 C138 118 130 158 100 172 Z" fill="#B0852F" opacity="0.45"/>
+  <!-- sheen -->
+  <path d="M100 70 C120 70 134 80 140 98 C130 86 116 80 100 80 C84 80 70 86 60 98 C66 80 80 70 100 70 Z" fill="url(#pineSheen)"/>
+  <!-- diamond scale lattice -->
+  <g stroke="#8A6420" stroke-width="1.1" opacity="0.55" fill="none">
+    <path d="M70 96 L100 84 L130 96 M70 96 L100 108 L130 96"/>
+    <path d="M62 120 L92 108 L122 120 L92 132 Z"/>
+    <path d="M92 108 L122 120 L138 110"/>
+    <path d="M66 144 L96 132 L126 144 L96 156 Z"/>
+    <path d="M122 120 L138 132 M62 120 L56 132"/>
+    <path d="M82 168 L100 158 L118 168"/>
+  </g>
+  <!-- scale facet highlights + air pockets -->
+  <g fill="#F4D86A" opacity="0.6">
+    <circle cx="86" cy="100" r="1.6"/>
+    <circle cx="114" cy="100" r="1.6"/>
+    <circle cx="78" cy="120" r="1.6"/>
+    <circle cx="106" cy="120" r="1.6"/>
+    <circle cx="92" cy="140" r="1.4"/>
+    <circle cx="120" cy="138" r="1.4"/>
+    <circle cx="100" cy="160" r="1.2"/>
+  </g>
+  <g fill="#FBF9F4" opacity="0.4">
+    <circle cx="90" cy="112" r="1"/>
+    <circle cx="116" cy="128" r="0.9"/>
+    <circle cx="74" cy="134" r="0.9"/>
+  </g>
+  <!-- crown leaves -->
+  <g>
+    <path d="M100 74 C96 56 92 44 84 32 C92 40 98 50 102 62 C100 50 100 40 104 30 C108 42 108 56 106 70 Z" fill="url(#pineCrown)"/>
+    <path d="M100 72 C108 56 118 46 132 40 C120 50 112 60 108 72 Z" fill="url(#pineCrown)"/>
+    <path d="M100 72 C92 56 82 46 68 40 C80 50 88 60 92 72 Z" fill="url(#pineCrown)"/>
+    <path d="M100 70 C100 54 102 42 100 28 C98 42 98 54 98 70 Z" fill="#1E6F43" opacity="0.7"/>
+    <path d="M100 70 C112 60 124 56 136 56 C124 60 114 66 108 74 Z" fill="#2E8B57" opacity="0.8"/>
+    <path d="M100 70 C88 60 76 56 64 56 C76 60 86 66 92 74 Z" fill="#2E8B57" opacity="0.8"/>
+  </g>
+</svg>

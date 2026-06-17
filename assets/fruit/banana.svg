@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bananaBody" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="#F2DE7A"/>
+      <stop offset="40%" stop-color="#E8C84D"/>
+      <stop offset="100%" stop-color="#C9A227"/>
+    </linearGradient>
+    <linearGradient id="bananaSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBF9F4" stop-opacity="0.6"/>
+      <stop offset="55%" stop-color="#FBF9F4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bananaSpine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBF9F4" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#FBF9F4" stop-opacity="0.1"/>
+    </linearGradient>
+    <radialGradient id="bananaShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#123D2A" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#123D2A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="100" cy="166" rx="62" ry="11" fill="url(#bananaShadow)"/>
+  <!-- main crescent body -->
+  <path d="M44 64 C38 100 58 138 104 150 C140 158 166 146 172 130 C162 138 142 142 116 134 C76 122 60 92 62 60 C62 52 58 48 52 50 C46 52 44 56 44 64 Z" fill="url(#bananaBody)"/>
+  <!-- lower belly shade -->
+  <path d="M62 110 C78 132 102 144 130 146 C150 147 164 140 172 130 C162 138 142 142 116 134 C92 126 76 112 66 96 C64 101 62 106 62 110 Z" fill="#C9A227" opacity="0.55"/>
+  <!-- top ridge sheen -->
+  <path d="M52 56 C50 88 66 118 102 132 C72 116 62 88 64 60 C64 52 60 48 56 50 C53 51 52 53 52 56 Z" fill="url(#bananaSheen)"/>
+  <!-- crisp facet ridge line -->
+  <path d="M58 66 C56 96 72 126 108 140" stroke="url(#bananaSpine)" stroke-width="2" fill="none"/>
+  <!-- tip and stem -->
+  <path d="M44 64 C42 56 46 48 54 48 C60 48 62 52 62 58 C58 52 50 52 48 60 C47 62 45 63 44 64 Z" fill="#8B5A2B"/>
+  <path d="M50 50 C50 44 52 40 56 38 C56 44 56 48 58 52 Z" fill="#6B4220"/>
+  <path d="M172 130 C178 128 182 132 180 138 C176 140 172 138 168 134 Z" fill="#8B5A2B"/>
+  <!-- freeze-dried air-pocket dots -->
+  <g fill="#FBF9F4" opacity="0.4">
+    <circle cx="96" cy="124" r="1.2"/>
+    <circle cx="120" cy="132" r="1.1"/>
+    <circle cx="140" cy="136" r="1"/>
+    <circle cx="78" cy="106" r="1"/>
+  </g>
+  <!-- subtle brown speckle hints (ripe/freeze-dried) -->
+  <g fill="#C9A227" opacity="0.5">
+    <circle cx="108" cy="118" r="1"/>
+    <circle cx="132" cy="128" r="0.9"/>
+    <circle cx="88" cy="112" r="0.8"/>
+  </g>
+</svg>

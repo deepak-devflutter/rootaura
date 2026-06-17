@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
+import 'app_text_styles.dart';
 
 /// Builds the light and dark [ThemeData] for Rootaura Naturals.
 class AppTheme {
@@ -41,11 +41,11 @@ class AppTheme {
     required Color scaffold,
     required ColorScheme scheme,
   }) {
-    final baseText = GoogleFonts.interTextTheme(
-      brightness == Brightness.dark
-          ? ThemeData.dark().textTheme
-          : ThemeData.light().textTheme,
-    ).apply(
+    final baseText = (brightness == Brightness.dark
+            ? ThemeData.dark().textTheme
+            : ThemeData.light().textTheme)
+        .apply(
+      fontFamily: AppTextStyles.inter,
       bodyColor: brand.textPrimary,
       displayColor: brand.textPrimary,
     );

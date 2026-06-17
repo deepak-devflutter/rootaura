@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../core/constants/app_dimens.dart';
 import '../core/constants/app_strings.dart';
@@ -8,15 +9,15 @@ import '../core/utils/responsive.dart';
 import '../widgets/responsive_grid.dart';
 import '../widgets/scroll_reveal.dart';
 
-/// Dark-green band of four brand values with icons.
+/// Dark-green band of four brand values, each led by a luxury trust seal.
 class ValuesBand extends StatelessWidget {
   const ValuesBand({super.key});
 
   static const _values = [
-    (Icons.eco_rounded, AppStrings.value1Title, AppStrings.value1Sub),
-    (Icons.ac_unit_rounded, AppStrings.value2Title, AppStrings.value2Sub),
-    (Icons.verified_user_rounded, AppStrings.value3Title, AppStrings.value3Sub),
-    (Icons.favorite_rounded, AppStrings.value4Title, AppStrings.value4Sub),
+    ('assets/badges/farm-fresh.svg', AppStrings.value1Title, AppStrings.value1Sub),
+    ('assets/badges/freeze-dried.svg', AppStrings.value2Title, AppStrings.value2Sub),
+    ('assets/badges/natural-100.svg', AppStrings.value3Title, AppStrings.value3Sub),
+    ('assets/badges/made-in-india.svg', AppStrings.value4Title, AppStrings.value4Sub),
   ];
 
   @override
@@ -42,9 +43,7 @@ class ValuesBand extends StatelessWidget {
               desktop: 4,
               spacing: AppDimens.xl,
               runSpacing: AppDimens.xl,
-              children: _values
-                  .map((v) => _value(v.$1, v.$2, v.$3))
-                  .toList(),
+              children: _values.map((v) => _value(v.$1, v.$2, v.$3)).toList(),
             ),
           ),
         ),
@@ -52,18 +51,11 @@ class ValuesBand extends StatelessWidget {
     );
   }
 
-  Widget _value(IconData icon, String title, String sub) {
+  Widget _value(String badge, String title, String sub) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          ),
-          child: Icon(icon, color: AppColors.gold, size: 24),
-        ),
+        SvgPicture.asset(badge, width: 64, height: 64),
         const SizedBox(height: AppDimens.md),
         Text(title,
             style: AppTextStyles.h3.copyWith(

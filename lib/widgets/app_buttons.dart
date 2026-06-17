@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../core/constants/app_dimens.dart';
 import '../core/constants/app_durations.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_gradients.dart';
+import '../core/theme/app_motion.dart';
 import '../core/theme/app_text_styles.dart';
 
 enum _ButtonKind { primary, secondary }
@@ -13,6 +15,7 @@ class _HoverButton extends StatefulWidget {
   final IconData? icon;
   final _ButtonKind kind;
   final bool dense;
+  final bool gold; // foiled-gold signature CTA (use sparingly)
 
   const _HoverButton({
     required this.text,
@@ -20,6 +23,7 @@ class _HoverButton extends StatefulWidget {
     required this.kind,
     this.icon,
     this.dense = false,
+    this.gold = false,
   });
 
   @override
@@ -28,60 +32,81 @@ class _HoverButton extends StatefulWidget {
 
 class _HoverButtonState extends State<_HoverButton> {
   bool _hover = false;
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     final isPrimary = widget.kind == _ButtonKind.primary;
-    final primary = Theme.of(context).colorScheme.primary;
+    final primary = AppColors.primaryGreen;
+    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     final pad = widget.dense
         ? const EdgeInsets.symmetric(horizontal: 22, vertical: 13)
         : const EdgeInsets.symmetric(horizontal: 30, vertical: 17);
 
-    final Color bg = isPrimary
-        ? (_hover ? AppColors.darkGreen : AppColors.primaryGreen)
-        : (_hover ? AppColors.primaryGreen : Colors.transparent);
+    final Color glow = widget.gold ? AppColors.gold : AppColors.primaryGreen;
     final Color fg = isPrimary
-        ? Colors.white
+        ? (widget.gold ? AppColors.darkGreen : Colors.white)
         : (_hover ? Colors.white : primary);
+
+    final scale = reduce
+        ? 1.0
+        : _pressed
+            ? AppDimens.pressedScale
+            : 1.0;
+    final lift = (_hover && !reduce) ? AppDimens.buttonLiftY : 0.0;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
+      onExit: (_) => setState(() {
+        _hover = false;
+        _pressed = false;
+      }),
       child: GestureDetector(
         onTap: widget.onPressed,
-        child: AnimatedContainer(
-          duration: AppDurations.fast,
-          curve: Curves.easeOut,
-          transform: Matrix4.identity()
-            ..translateByDouble(0.0, _hover ? -2.0 : 0.0, 0.0, 1.0),
-          padding: pad,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(AppDimens.radiusPill),
-            border: isPrimary
-                ? null
-                : Border.all(color: AppColors.primaryGreen, width: 1.6),
-            boxShadow: isPrimary
-                ? [
-                    BoxShadow(
-                      color: AppColors.primaryGreen
-                          .withValues(alpha: _hover ? 0.35 : 0.22),
-                      blurRadius: _hover ? 24 : 14,
-                      offset: Offset(0, _hover ? 10 : 6),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.icon != null) ...[
-                Icon(widget.icon, size: 18, color: fg),
-                const SizedBox(width: 8),
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedScale(
+          scale: scale,
+          duration: AppDurations.micro,
+          curve: AppCurves.standard,
+          child: AnimatedContainer(
+            duration: AppDurations.hover,
+            curve: AppCurves.standard,
+            transform: Matrix4.identity()
+              ..translateByDouble(0.0, lift, 0.0, 1.0),
+            padding: pad,
+            decoration: BoxDecoration(
+              color: isPrimary && !widget.gold
+                  ? (_hover ? AppColors.darkGreen : AppColors.primaryGreen)
+                  : (isPrimary ? null : (_hover ? primary : Colors.transparent)),
+              gradient: isPrimary && widget.gold ? AppGradients.goldFoil : null,
+              borderRadius: BorderRadius.circular(AppDimens.radiusPill),
+              border: isPrimary
+                  ? null
+                  : Border.all(color: AppColors.primaryGreen, width: 1.6),
+              boxShadow: isPrimary
+                  ? [
+                      BoxShadow(
+                        color: glow.withValues(alpha: _hover ? 0.40 : 0.24),
+                        blurRadius: _hover ? 28 : 16,
+                        offset: Offset(0, _hover ? 12 : 7),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.icon != null) ...[
+                  Icon(widget.icon, size: 18, color: fg),
+                  const SizedBox(width: 8),
+                ],
+                Text(widget.text,
+                    style: AppTextStyles.button.copyWith(color: fg)),
               ],
-              Text(widget.text, style: AppTextStyles.button.copyWith(color: fg)),
-            ],
+            ),
           ),
         ),
       ),
@@ -95,12 +120,16 @@ class PrimaryButton extends StatelessWidget {
   final IconData? icon;
   final bool dense;
 
+  /// Foiled-gold signature variant — reserve for the hero & checkout CTAs.
+  final bool gold;
+
   const PrimaryButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.icon,
     this.dense = false,
+    this.gold = false,
   });
 
   @override
@@ -109,6 +138,7 @@ class PrimaryButton extends StatelessWidget {
         onPressed: onPressed,
         icon: icon,
         dense: dense,
+        gold: gold,
         kind: _ButtonKind.primary,
       );
 }
