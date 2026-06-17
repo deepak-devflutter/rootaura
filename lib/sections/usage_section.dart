@@ -116,7 +116,11 @@ class _ExpandingPanelsState extends State<_ExpandingPanels> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(item.image, fit: BoxFit.cover, alignment: Alignment.center),
+            Image.asset(item.image,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                errorBuilder: (c, e, s) => Image.asset('assets/images/basket.png',
+                    fit: BoxFit.cover)),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -200,7 +204,10 @@ class _UsageCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(item.image, fit: BoxFit.cover),
+            Image.asset(item.image,
+                fit: BoxFit.cover,
+                errorBuilder: (c, e, s) =>
+                    Image.asset('assets/images/basket.png', fit: BoxFit.cover)),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
