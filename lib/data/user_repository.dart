@@ -80,8 +80,21 @@ class UserRepository {
 
   // ---- Admin-only operations (guarded by security rules) ----
 
-  /// Live stream of all customers for the admin panel, newest first.
-  Stream<List<UserProfile>> streamAll() {
+  /// Live stream of customers for the admin panel, newest first.
+  ///
+  /// When [limit] is given, the query is capped server-side (newest-first by
+  /// `createdAt`) so Firestore never reads the entire collection — pagination
+  /// grows the limit on demand. Without a limit it falls back to a full read
+  /// with client-side sorting (keeps any legacy docs missing `createdAt`).
+  Stream<List<UserProfile>> streamAll({int? limit}) {
+    if (limit != null) {
+      return _col
+          .orderBy('createdAt', descending: true)
+          .limit(limit)
+          .snapshots()
+          .map((s) =>
+              s.docs.map((d) => UserProfile.fromMap(d.id, d.data())).toList());
+    }
     return _col.snapshots().map((s) {
       final users =
           s.docs.map((d) => UserProfile.fromMap(d.id, d.data())).toList();

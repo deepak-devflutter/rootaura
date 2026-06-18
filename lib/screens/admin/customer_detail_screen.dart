@@ -7,12 +7,14 @@ import '../../core/constants/shop_config.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../data/models/address.dart';
 import '../../data/models/order.dart';
 import '../../data/models/user_profile.dart';
 import '../../data/order_repository.dart';
 import '../../data/user_repository.dart';
 import '../../utils/format.dart';
 import '../../utils/url_helper.dart';
+import '../../widgets/address_form.dart';
 import '../../widgets/status_badge.dart';
 
 /// Full customer profile for the admin: identity, lifetime stats, addresses,
@@ -109,6 +111,11 @@ class CustomerDetailScreen extends StatelessWidget {
                   if (p.blocked) _tag('Blocked', AppColors.berry),
                 ],
               ),
+              IconButton(
+                tooltip: 'Edit details',
+                onPressed: () => _editCustomer(context, p),
+                icon: const Icon(Icons.edit_outlined, size: 20),
+              ),
             ],
           ),
           const SizedBox(height: AppDimens.md),
@@ -131,6 +138,47 @@ class CustomerDetailScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _editCustomer(BuildContext context, UserProfile p) async {
+    final updated = await showDialog<UserProfile>(
+      context: context,
+      builder: (_) => _CustomerEditDialog(profile: p),
+    );
+    if (updated == null) return;
+    await UserRepository.instance.save(updated);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Customer details updated.')));
+    }
+  }
+
+  Future<void> _addOrEditAddress(BuildContext context, UserProfile p,
+      {Address? existing}) async {
+    final addr = await showAddressSheet(context, existing: existing);
+    if (addr == null) return;
+    await UserRepository.instance.upsertAddress(p, addr);
+  }
+
+  Future<void> _removeAddress(
+      BuildContext context, UserProfile p, String id) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove address?'),
+        content: const Text('This address will be deleted from the customer.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.berry),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Remove')),
+        ],
+      ),
+    );
+    if (ok == true) await UserRepository.instance.removeAddress(p, id);
+  }
+
   Widget _contactChip(IconData icon, String label, String url) => ActionChip(
         avatar: Icon(icon, size: 16, color: AppColors.primaryGreen),
         label: Text(label),
@@ -150,32 +198,85 @@ class CustomerDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Saved Addresses (${p.addresses.length})',
-              style: AppTextStyles.h3
-                  .copyWith(color: brand.textPrimary, fontSize: 16)),
+          Row(
+            children: [
+              Text('Saved Addresses (${p.addresses.length})',
+                  style: AppTextStyles.h3
+                      .copyWith(color: brand.textPrimary, fontSize: 16)),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () => _addOrEditAddress(context, p),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Add'),
+              ),
+            ],
+          ),
           const SizedBox(height: AppDimens.sm),
           if (p.addresses.isEmpty)
             Text('No saved addresses.',
                 style: AppTextStyles.bodySmall
                     .copyWith(color: brand.textSecondary))
           else
-            ...p.addresses.map((a) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 18, color: AppColors.primaryGreen),
-                      const SizedBox(width: AppDimens.sm),
-                      Expanded(
-                        child: Text(
-                            '${a.label} · ${a.name}\n${a.oneLine} · ${a.phone}',
-                            style: AppTextStyles.bodySmall
-                                .copyWith(color: brand.textPrimary)),
+            ...p.addresses.map((a) {
+              final isDefault = a.id == p.defaultAddressId;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.location_on_outlined,
+                        size: 18, color: AppColors.primaryGreen),
+                    const SizedBox(width: AppDimens.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(children: [
+                            Flexible(
+                              child: Text('${a.label} · ${a.name}',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: brand.textPrimary)),
+                            ),
+                            if (isDefault) ...[
+                              const SizedBox(width: AppDimens.sm),
+                              Text('Default',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.primaryGreen,
+                                      fontWeight: FontWeight.w700)),
+                            ],
+                          ]),
+                          Text('${a.oneLine} · ${a.phone}',
+                              style: AppTextStyles.bodySmall
+                                  .copyWith(color: brand.textSecondary)),
+                        ],
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (v) async {
+                        if (v == 'edit') {
+                          await _addOrEditAddress(context, p, existing: a);
+                        } else if (v == 'default') {
+                          await UserRepository.instance
+                              .setDefaultAddress(p, a.id);
+                        } else if (v == 'delete') {
+                          await _removeAddress(context, p, a.id);
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        if (!isDefault)
+                          const PopupMenuItem(
+                              value: 'default',
+                              child: Text('Set as default')),
+                        const PopupMenuItem(
+                            value: 'delete', child: Text('Delete')),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
         ],
       ),
     );
@@ -191,6 +292,112 @@ class CustomerDetailScreen extends StatelessWidget {
             style: AppTextStyles.bodySmall.copyWith(
                 color: color, fontWeight: FontWeight.w700, fontSize: 11)),
       );
+}
+
+/// Admin edit of a customer's identity (name / email / phone). Editing here
+/// updates the profile record only — the customer's actual sign-in credential
+/// is managed by Firebase Auth and is unaffected.
+class _CustomerEditDialog extends StatefulWidget {
+  final UserProfile profile;
+  const _CustomerEditDialog({required this.profile});
+
+  @override
+  State<_CustomerEditDialog> createState() => _CustomerEditDialogState();
+}
+
+class _CustomerEditDialogState extends State<_CustomerEditDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _name =
+      TextEditingController(text: widget.profile.name);
+  late final TextEditingController _email =
+      TextEditingController(text: widget.profile.email);
+  late final TextEditingController _phone =
+      TextEditingController(text: widget.profile.phone);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    _phone.dispose();
+    super.dispose();
+  }
+
+  String? _validateEmail(String? v) {
+    final s = (v ?? '').trim();
+    if (s.isEmpty) return null;
+    final ok = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s);
+    return ok ? null : 'Enter a valid email address';
+  }
+
+  String? _validatePhone(String? v) {
+    final s = (v ?? '').trim();
+    if (s.isEmpty) return null;
+    final digits = s.replaceAll(RegExp(r'[^0-9]'), '');
+    return digits.length >= 7 ? null : 'Enter a valid phone number';
+  }
+
+  void _save() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.pop(
+      context,
+      widget.profile.copyWith(
+        name: _name.text.trim(),
+        email: _email.text.trim(),
+        phone: _phone.text.trim(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Edit customer'),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _name,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  prefixIcon: Icon(Icons.person_outline_rounded),
+                ),
+              ),
+              const SizedBox(height: AppDimens.md),
+              TextFormField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                validator: _validateEmail,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.mail_outline_rounded),
+                ),
+              ),
+              const SizedBox(height: AppDimens.md),
+              TextFormField(
+                controller: _phone,
+                keyboardType: TextInputType.phone,
+                validator: _validatePhone,
+                decoration: const InputDecoration(
+                  labelText: 'Phone',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel')),
+        FilledButton(onPressed: _save, child: const Text('Save')),
+      ],
+    );
+  }
 }
 
 /// Lifetime stats + order history, computed live from the customer's orders.

@@ -42,9 +42,11 @@ class AdminOrdersTab extends StatefulWidget {
 }
 
 class _AdminOrdersTabState extends State<AdminOrdersTab> {
+  static const _pageSize = 20;
   OrderFilter _filter = OrderFilter.newOrders; // new orders default
   final _search = TextEditingController();
   String _query = '';
+  int _limit = _pageSize;
 
   @override
   void dispose() {
@@ -75,7 +77,7 @@ class _AdminOrdersTabState extends State<AdminOrdersTab> {
         ),
         const SizedBox(height: AppDimens.md),
         StreamBuilder<List<ShopOrder>>(
-          stream: OrderRepository.instance.allOrders(),
+          stream: OrderRepository.instance.allOrders(limit: _limit),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
               return const Padding(
@@ -123,11 +125,42 @@ class _AdminOrdersTabState extends State<AdminOrdersTab> {
                   )
                 else
                   ...filtered.map((o) => _AdminOrderCard(order: o)),
+                _loadMore(brand, all.length),
               ],
             );
           },
         ),
       ],
+    );
+  }
+
+  /// Shows a "Load more" control when the current page is full (more may
+  /// exist). [loaded] is the number of docs currently streamed.
+  Widget _loadMore(BrandColors brand, int loaded) {
+    final maybeMore = loaded >= _limit;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
+      child: Center(
+        child: Column(
+          children: [
+            Text('Showing $loaded orders',
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: brand.textSecondary)),
+            if (maybeMore) ...[
+              const SizedBox(height: AppDimens.sm),
+              OutlinedButton.icon(
+                onPressed: () => setState(() => _limit += _pageSize),
+                icon: const Icon(Icons.expand_more_rounded, size: 18),
+                label: const Text('Load more'),
+              ),
+              const SizedBox(height: 4),
+              Text('Search & filters apply to loaded orders',
+                  style: AppTextStyles.bodySmall.copyWith(
+                      color: brand.textSecondary, fontSize: 11)),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

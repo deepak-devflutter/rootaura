@@ -65,17 +65,17 @@ class HeroSection extends StatelessWidget {
                 child: isMobile
                     ? Column(
                         children: [
-                          _copy(context, brand, true),
+                          _heroImage(context, true),
                           const SizedBox(height: AppDimens.xl),
-                          _heroImage(context),
+                          _copy(context, brand, true),
                         ],
                       )
                     : Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(flex: 6, child: _copy(context, brand, false)),
-                          const SizedBox(width: AppDimens.xxl),
-                          Expanded(flex: 5, child: _heroImage(context)),
+                          Expanded(flex: 5, child: _copy(context, brand, false)),
+                          const SizedBox(width: AppDimens.lg),
+                          Expanded(flex: 5, child: _heroImage(context, false)),
                         ],
                       ),
               ),
@@ -155,8 +155,74 @@ class HeroSection extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.lg),
           _socialProof(brand, isMobile),
-          const SizedBox(height: AppDimens.xl),
+          const SizedBox(height: AppDimens.lg),
+          _statCards(brand, isMobile),
+          const SizedBox(height: AppDimens.lg),
           _miniTrust(brand, isMobile),
+        ],
+      ),
+    );
+  }
+
+  Widget _statCards(BrandColors brand, bool isMobile) {
+    const stats = [
+      (Icons.groups_outlined, '20,000+', 'Happy Customers'),
+      (Icons.eco_outlined, '100%', 'Natural & Pure'),
+      (Icons.local_florist_outlined, '15+', 'Fruit Varieties'),
+    ];
+    final cards = stats
+        .map((s) => _statCard(brand, s.$1, s.$2, s.$3))
+        .toList(growable: false);
+
+    if (isMobile) {
+      return Wrap(
+        spacing: AppDimens.sm,
+        runSpacing: AppDimens.sm,
+        alignment: WrapAlignment.center,
+        children: cards,
+      );
+    }
+    return Row(
+      children: [
+        for (var i = 0; i < cards.length; i++) ...[
+          if (i > 0) const SizedBox(width: AppDimens.sm),
+          Expanded(child: cards[i]),
+        ],
+      ],
+    );
+  }
+
+  Widget _statCard(
+      BrandColors brand, IconData icon, String value, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppDimens.md, vertical: AppDimens.md),
+      decoration: BoxDecoration(
+        color: brand.card,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        border: Border.all(color: brand.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 24, color: AppColors.primaryGreen),
+          const SizedBox(width: AppDimens.sm),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: AppTextStyles.h3.copyWith(
+                      color: brand.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700)),
+              Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: brand.textSecondary, fontSize: 12)),
+            ],
+          ),
         ],
       ),
     );
@@ -207,48 +273,21 @@ class HeroSection extends StatelessWidget {
     );
   }
 
-  Widget _heroImage(BuildContext context) {
+  Widget _heroImage(BuildContext context, bool isMobile) {
+    // The realistic photo is self-contained (fruits + leaves baked in), so it
+    // gets a large, clean stage aligned to the bottom-right like the reference.
     return ScrollReveal(
       offsetY: 50,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(colors: [
-                AppColors.gold.withValues(alpha: 0.18),
-                Colors.transparent,
-              ]),
-            ),
-            padding: const EdgeInsets.all(AppDimens.lg),
-            child: Image.asset(AppAssets.heroBowl, fit: BoxFit.contain),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: isMobile ? 360 : 600),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Image.asset(
+            AppAssets.heroBowl,
+            fit: BoxFit.contain,
+            alignment: Alignment.bottomCenter,
           ),
-          const Positioned(
-              top: -14,
-              left: -10,
-              child: _FloatingFruit('strawberry', size: 66, dy: 12)),
-          const Positioned(
-              top: 18,
-              right: -22,
-              child: _FloatingFruit('mango',
-                  size: 74, dy: 16, period: Duration(seconds: 6))),
-          const Positioned(
-              bottom: 6,
-              left: -18,
-              child: _FloatingFruit('kiwi',
-                  size: 60, dy: 14, period: Duration(seconds: 7))),
-          const Positioned(
-              bottom: -10,
-              right: 24,
-              child: _FloatingFruit('blueberry',
-                  size: 48, dy: 10, period: Duration(seconds: 5))),
-          Positioned(
-            top: -6,
-            right: 8,
-            child: SvgPicture.asset(AppAssets.sparkle, width: 24),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -258,56 +297,6 @@ class HeroSection extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-    );
-  }
-}
-
-/// A fruit illustration that gently floats up and down (reduced-motion safe).
-class _FloatingFruit extends StatefulWidget {
-  final String fruit;
-  final double size;
-  final double dy;
-  final Duration period;
-  const _FloatingFruit(this.fruit,
-      {this.size = 60, this.dy = 12, this.period = const Duration(seconds: 5)});
-
-  @override
-  State<_FloatingFruit> createState() => _FloatingFruitState();
-}
-
-class _FloatingFruitState extends State<_FloatingFruit>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: widget.period);
-
-  @override
-  void initState() {
-    super.initState();
-    _c.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    final img =
-        SvgPicture.asset('assets/fruit/${widget.fruit}.svg', width: widget.size);
-    if (reduce) return img;
-    return AnimatedBuilder(
-      animation: CurvedAnimation(parent: _c, curve: Curves.easeInOut),
-      builder: (context, child) {
-        final v = (_c.value - 0.5) * 2;
-        return Transform.translate(
-          offset: Offset(0, v * widget.dy),
-          child: Transform.rotate(angle: v * 0.05, child: child),
-        );
-      },
-      child: img,
     );
   }
 }

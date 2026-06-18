@@ -44,8 +44,14 @@ class OrderRepository {
       _col.doc(id).update({'status': OrderStatus.cancelled});
 
   // ---- Admin ----
-  Stream<List<ShopOrder>> allOrders() {
-    return _col.orderBy('createdAt', descending: true).snapshots().map(
+  /// Newest-first orders for the admin console. Pass [limit] to cap how many
+  /// documents are read/streamed — pagination uses a growing limit so Firestore
+  /// never reads the entire (unbounded) collection at once.
+  Stream<List<ShopOrder>> allOrders({int? limit}) {
+    Query<Map<String, dynamic>> q =
+        _col.orderBy('createdAt', descending: true);
+    if (limit != null) q = q.limit(limit);
+    return q.snapshots().map(
         (s) => s.docs.map((d) => ShopOrder.fromMap(d.id, d.data())).toList());
   }
 

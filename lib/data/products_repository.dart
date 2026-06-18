@@ -61,11 +61,17 @@ class ProductsRepository {
 
   // ---- Admin CRUD ----
 
-  /// Live stream of ALL products (including inactive) for the admin panel,
-  /// in the admin-defined order. Sorted client-side so docs without a
-  /// `sortOrder` field still appear.
+  /// Upper bound on products read into the admin panel. The catalogue is
+  /// intentionally small and drag-to-reorder needs the whole ordered list at
+  /// once, so it isn't page-split; this cap just guarantees reads can never run
+  /// away if the collection somehow grows unexpectedly.
+  static const int adminCatalogCap = 200;
+
+  /// Live stream of products (including inactive) for the admin panel, in the
+  /// admin-defined order. Sorted client-side so docs without a `sortOrder`
+  /// field still appear. Capped at [adminCatalogCap] documents.
   Stream<List<Product>> streamAll() {
-    return _col.snapshots().map((s) {
+    return _col.limit(adminCatalogCap).snapshots().map((s) {
       final list =
           s.docs.map((d) => Product.fromMap(d.id, d.data())).toList();
       _sortByOrder(list);

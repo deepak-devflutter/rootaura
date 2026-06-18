@@ -79,6 +79,7 @@ flutter:
     - assets/badges/
     - assets/bg/
     - assets/empty/
+    - assets/whyus/
 
   fonts:
     - family: Fraunces

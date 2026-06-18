@@ -10,6 +10,7 @@ import '../../screens/order_detail_screen.dart';
 import '../../screens/order_success_screen.dart';
 import '../../screens/orders_screen.dart';
 import '../../screens/privacy_screen.dart';
+import '../../screens/terms_screen.dart';
 import '../../screens/product_detail_screen.dart';
 import '../../screens/products_screen.dart';
 import '../../screens/profile_screen.dart';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String productDetail = '/products/:slug';
   static const String contact = '/contact';
   static const String privacy = '/privacy';
+  static const String terms = '/terms';
   static const String signIn = '/sign-in';
   static const String cart = '/cart';
   static const String checkout = '/checkout';
@@ -89,6 +91,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.privacy,
         pageBuilder: (c, s) => _fade(s, const PrivacyScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.terms,
+        pageBuilder: (c, s) => _fade(s, const TermsScreen()),
       ),
       GoRoute(
         path: AppRoutes.signIn,

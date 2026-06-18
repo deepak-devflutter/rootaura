@@ -8,7 +8,16 @@ class InfoItem {
   final String title;
   final String subtitle;
 
-  const InfoItem(this.icon, this.title, this.subtitle);
+  /// Product photo shown on the "Why us" card (overflows top-right). Swap per
+  /// item later; defaults to the shared placeholder.
+  final String image;
+
+  const InfoItem(
+    this.icon,
+    this.title,
+    this.subtitle, {
+    this.image = 'assets/whyus/Perfect On-the-Go.png',
+  });
 }
 
 class UsageItem {
@@ -69,16 +78,20 @@ class AppContent {
       Icons.ac_unit_rounded,
       'Freeze-Dried Technology',
       'Preserves natural flavour, colour & nutrients at low temperature.',
+      image: 'assets/whyus/Freeze-Dried Technology.png'
     ),
     InfoItem(
       Icons.spa_rounded,
       'No Preservatives',
       'Made from real fruits with nothing artificial added.',
+        image: 'assets/whyus/No Preservatives.png'
     ),
     InfoItem(
       Icons.schedule_rounded,
       'Long Shelf Life',
       'Stays fresh for months at room temperature.',
+        image: 'assets/whyus/Long Shelf Life.png'
+
     ),
     InfoItem(
       Icons.flight_takeoff_rounded,
@@ -89,11 +102,15 @@ class AppContent {
       Icons.verified_rounded,
       'Hygienic Processing',
       'Crafted under strict, hygienic quality standards.',
+        image: 'assets/whyus/Hygienic Processing.png'
+
     ),
     InfoItem(
       Icons.favorite_rounded,
       'Real Fruit. Real Taste.',
       'Crunchy, delicious and naturally satisfying.',
+        image: 'assets/whyus/Real Fruit Real Taste.png'
+
     ),
   ];
 

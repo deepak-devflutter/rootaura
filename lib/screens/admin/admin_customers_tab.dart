@@ -33,9 +33,11 @@ class AdminCustomersTab extends StatefulWidget {
 }
 
 class _AdminCustomersTabState extends State<AdminCustomersTab> {
+  static const _pageSize = 20;
   final _search = TextEditingController();
   String _query = '';
   CustomerFilter _filter = CustomerFilter.all;
+  int _limit = _pageSize;
 
   @override
   void dispose() {
@@ -66,7 +68,7 @@ class _AdminCustomersTabState extends State<AdminCustomersTab> {
         ),
         const SizedBox(height: AppDimens.md),
         StreamBuilder<List<UserProfile>>(
-          stream: UserRepository.instance.streamAll(),
+          stream: UserRepository.instance.streamAll(limit: _limit),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
               return const Padding(
@@ -113,11 +115,40 @@ class _AdminCustomersTabState extends State<AdminCustomersTab> {
                   )
                 else
                   ...filtered.map((u) => _CustomerRow(user: u)),
+                _loadMore(brand, all.length),
               ],
             );
           },
         ),
       ],
+    );
+  }
+
+  Widget _loadMore(BrandColors brand, int loaded) {
+    final maybeMore = loaded >= _limit;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
+      child: Center(
+        child: Column(
+          children: [
+            Text('Showing $loaded customers',
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: brand.textSecondary)),
+            if (maybeMore) ...[
+              const SizedBox(height: AppDimens.sm),
+              OutlinedButton.icon(
+                onPressed: () => setState(() => _limit += _pageSize),
+                icon: const Icon(Icons.expand_more_rounded, size: 18),
+                label: const Text('Load more'),
+              ),
+              const SizedBox(height: 4),
+              Text('Search & filters apply to loaded customers',
+                  style: AppTextStyles.bodySmall.copyWith(
+                      color: brand.textSecondary, fontSize: 11)),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

@@ -136,22 +136,35 @@ class _AdminProductsTabState extends State<AdminProductsTab> {
                   style: AppTextStyles.bodyMedium
                       .copyWith(color: brand.textSecondary));
             }
-            return ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              buildDefaultDragHandles: false,
-              itemCount: _items.length,
-              onReorder: _onReorder,
-              itemBuilder: (context, index) {
-                final p = _items[index];
-                return _ProductRow(
-                  key: ValueKey(p.id),
-                  product: p,
-                  index: index,
-                  onEdit: () => _openForm(context, existing: p),
-                  onDelete: () => _confirmDelete(context, p),
-                );
-              },
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  buildDefaultDragHandles: false,
+                  itemCount: _items.length,
+                  onReorder: _onReorder,
+                  itemBuilder: (context, index) {
+                    final p = _items[index];
+                    return _ProductRow(
+                      key: ValueKey(p.id),
+                      product: p,
+                      index: index,
+                      onEdit: () => _openForm(context, existing: p),
+                      onDelete: () => _confirmDelete(context, p),
+                    );
+                  },
+                ),
+                const SizedBox(height: AppDimens.sm),
+                Text(
+                  _items.length >= ProductsRepository.adminCatalogCap
+                      ? 'Showing first ${ProductsRepository.adminCatalogCap} products (cap reached)'
+                      : '${_items.length} products',
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: brand.textSecondary),
+                ),
+              ],
             );
           },
         ),

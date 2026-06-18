@@ -17,28 +17,21 @@ import '../widgets/section.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  Future<void> _editName(BuildContext context, UserProfile profile) async {
-    final controller = TextEditingController(text: profile.name);
-    final name = await showDialog<String>(
+  Future<void> _editProfile(BuildContext context, UserProfile profile) async {
+    final user = AuthController.instance.user;
+    // The credential used to sign in is the identity and can't be changed here.
+    final emailLocked = (user?.email ?? '').trim().isNotEmpty;
+    final phoneLocked = (user?.phoneNumber ?? '').trim().isNotEmpty;
+
+    final updated = await showDialog<UserProfile>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Your name'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Enter your name'),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-              child: const Text('Save')),
-        ],
+      builder: (ctx) => _EditProfileDialog(
+        profile: profile,
+        emailLocked: emailLocked,
+        phoneLocked: phoneLocked,
       ),
     );
-    if (name == null || name.isEmpty) return;
-    final updated = profile.copyWith(name: name);
+    if (updated == null) return;
     await UserRepository.instance.save(updated);
     AuthController.instance.setProfile(updated);
   }
@@ -160,23 +153,43 @@ class ProfileScreen extends StatelessWidget {
                 Text(profile.name.isNotEmpty ? profile.name : 'Add your name',
                     style: AppTextStyles.h3
                         .copyWith(color: brand.textPrimary, fontSize: 18)),
+                const SizedBox(height: 6),
+                _contactLine(brand, Icons.phone_outlined, profile.phone,
+                    'Add phone number'),
                 const SizedBox(height: 2),
-                Text(
-                    [profile.phone, profile.email]
-                        .where((e) => e.isNotEmpty)
-                        .join(' · '),
-                    style: AppTextStyles.bodySmall
-                        .copyWith(color: brand.textSecondary)),
+                _contactLine(brand, Icons.mail_outline_rounded, profile.email,
+                    'Add email address'),
               ],
             ),
           ),
           IconButton(
-            tooltip: 'Edit name',
-            onPressed: () => _editName(context, profile),
+            tooltip: 'Edit profile',
+            onPressed: () => _editProfile(context, profile),
             icon: const Icon(Icons.edit_outlined, size: 20),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _contactLine(
+      BrandColors brand, IconData icon, String value, String emptyHint) {
+    final has = value.isNotEmpty;
+    return Row(
+      children: [
+        Icon(icon,
+            size: 14,
+            color: has ? brand.textSecondary : AppColors.primaryGreen),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(has ? value : emptyHint,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySmall.copyWith(
+                  color: has ? brand.textSecondary : AppColors.primaryGreen,
+                  fontWeight: has ? FontWeight.w400 : FontWeight.w600)),
+        ),
+      ],
     );
   }
 
@@ -249,6 +262,124 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Editable name / email / phone. The credential used to sign in (email or
+/// phone) is shown but locked.
+class _EditProfileDialog extends StatefulWidget {
+  final UserProfile profile;
+  final bool emailLocked;
+  final bool phoneLocked;
+  const _EditProfileDialog({
+    required this.profile,
+    required this.emailLocked,
+    required this.phoneLocked,
+  });
+
+  @override
+  State<_EditProfileDialog> createState() => _EditProfileDialogState();
+}
+
+class _EditProfileDialogState extends State<_EditProfileDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _name =
+      TextEditingController(text: widget.profile.name);
+  late final TextEditingController _email =
+      TextEditingController(text: widget.profile.email);
+  late final TextEditingController _phone =
+      TextEditingController(text: widget.profile.phone);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    _phone.dispose();
+    super.dispose();
+  }
+
+  String? _validateEmail(String? v) {
+    final s = (v ?? '').trim();
+    if (s.isEmpty) return null; // optional
+    final ok = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s);
+    return ok ? null : 'Enter a valid email address';
+  }
+
+  String? _validatePhone(String? v) {
+    final s = (v ?? '').trim();
+    if (s.isEmpty) return null; // optional
+    final digits = s.replaceAll(RegExp(r'[^0-9]'), '');
+    return digits.length >= 7 ? null : 'Enter a valid phone number';
+  }
+
+  void _save() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final updated = widget.profile.copyWith(
+      name: _name.text.trim(),
+      // Locked fields keep their existing (sign-in) value.
+      email: widget.emailLocked ? widget.profile.email : _email.text.trim(),
+      phone: widget.phoneLocked ? widget.profile.phone : _phone.text.trim(),
+    );
+    Navigator.pop(context, updated);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Edit profile'),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _name,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  prefixIcon: Icon(Icons.person_outline_rounded),
+                ),
+              ),
+              const SizedBox(height: AppDimens.md),
+              TextFormField(
+                controller: _email,
+                enabled: !widget.emailLocked,
+                readOnly: widget.emailLocked,
+                keyboardType: TextInputType.emailAddress,
+                validator: widget.emailLocked ? null : _validateEmail,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: const Icon(Icons.mail_outline_rounded),
+                  helperText:
+                      widget.emailLocked ? 'Used to sign in — can’t be changed' : null,
+                ),
+              ),
+              const SizedBox(height: AppDimens.md),
+              TextFormField(
+                controller: _phone,
+                enabled: !widget.phoneLocked,
+                readOnly: widget.phoneLocked,
+                keyboardType: TextInputType.phone,
+                validator: widget.phoneLocked ? null : _validatePhone,
+                decoration: InputDecoration(
+                  labelText: 'Phone',
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  helperText:
+                      widget.phoneLocked ? 'Used to sign in — can’t be changed' : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel')),
+        FilledButton(onPressed: _save, child: const Text('Save')),
+      ],
     );
   }
 }
