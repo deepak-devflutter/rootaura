@@ -80,6 +80,7 @@ flutter:
     - assets/bg/
     - assets/empty/
     - assets/whyus/
+    - assets/product_storage/
 
   fonts:
     - family: Fraunces

@@ -99,8 +99,10 @@ class _EyebrowChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Editorial "kicker": a thin gold rule flanking a tracked uppercase label.
-    final line = Container(width: 28, height: 1.5, color: AppColors.gold);
+    // Editorial "kicker": a thin accent rule flanking a tracked uppercase
+    // label. Uses the theme accent so it stays legible in dark mode.
+    final accent = context.brand.accent;
+    final line = Container(width: 28, height: 1.5, color: accent);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -109,7 +111,7 @@ class _EyebrowChip extends StatelessWidget {
         Text(
           text.toUpperCase(),
           style: AppTextStyles.eyebrow
-              .copyWith(color: AppColors.gold, letterSpacing: 2.5),
+              .copyWith(color: accent, letterSpacing: 2.5),
         ),
         const SizedBox(width: AppDimens.sm + 2),
         line,

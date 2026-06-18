@@ -32,7 +32,7 @@ class AboutSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _eyebrow(AppStrings.aboutEyebrow),
+          _eyebrow(AppStrings.aboutEyebrow, brand.accent),
           const SizedBox(height: AppDimens.md),
           Text(AppStrings.aboutTitle,
               style: (isMobile ? AppTextStyles.h1Mobile : AppTextStyles.h1)
@@ -65,14 +65,14 @@ class AboutSection extends StatelessWidget {
     );
   }
 
-  Widget _eyebrow(String text) => Row(
+  Widget _eyebrow(String text, Color accent) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 28, height: 1.5, color: AppColors.gold),
+          Container(width: 28, height: 1.5, color: accent),
           const SizedBox(width: AppDimens.sm + 2),
           Text(text.toUpperCase(),
               style: AppTextStyles.eyebrow
-                  .copyWith(color: AppColors.gold, letterSpacing: 2.5)),
+                  .copyWith(color: accent, letterSpacing: 2.5)),
         ],
       );
 

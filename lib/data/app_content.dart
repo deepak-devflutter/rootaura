@@ -187,31 +187,37 @@ class AppContent {
       Icons.thermostat_rounded,
       'Store in a Cool, Dry Place',
       'Keep away from direct sunlight, heat and moisture.',
+      image: 'assets/product_storage/Store in a Cool, Dry Place.png'
     ),
     InfoItem(
       Icons.lock_rounded,
       'Reseal After Every Use',
       'Seal the pouch tightly to maintain freshness and crunch.',
+      image: 'assets/product_storage/Reseal After Every Use.png'
     ),
     InfoItem(
       Icons.clean_hands_rounded,
       'Use Clean, Dry Hands or Spoon',
       'Avoid introducing moisture into the pack.',
+      image: 'assets/product_storage/Use Clean, Dry Hands or Spoon.png'
     ),
     InfoItem(
       Icons.inventory_2_rounded,
       'Transfer to an Airtight Container',
       'For best results once the pouch is opened.',
+      image: 'assets/product_storage/Transfer to an Airtight Container.png'
     ),
     InfoItem(
       Icons.water_drop_outlined,
       'Avoid Humidity Exposure',
       'Freeze-dried fruits absorb moisture and lose their crisp texture.',
+      image: 'assets/product_storage/Avoid Humidity Exposure.png'
     ),
     InfoItem(
       Icons.kitchen_outlined,
       'Refrigeration Not Required',
       'Store at room temperature in a cool, dry place.',
+      image: 'assets/product_storage/Refrigeration Not Required.png'
     ),
   ];
 

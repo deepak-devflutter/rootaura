@@ -79,7 +79,7 @@ class WhyChooseSection extends StatelessWidget {
     return ScrollReveal(
       child: Column(
         children: [
-          _eyebrow(AppStrings.whyEyebrow),
+          _eyebrow(AppStrings.whyEyebrow, brand.accent),
           const SizedBox(height: AppDimens.md),
           RichText(
             textAlign: TextAlign.center,
@@ -107,8 +107,8 @@ class WhyChooseSection extends StatelessWidget {
     );
   }
 
-  Widget _eyebrow(String text) {
-    final line = Container(width: 28, height: 1.5, color: AppColors.gold);
+  Widget _eyebrow(String text, Color accent) {
+    final line = Container(width: 28, height: 1.5, color: accent);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -116,7 +116,7 @@ class WhyChooseSection extends StatelessWidget {
         const SizedBox(width: AppDimens.sm + 2),
         Text(text.toUpperCase(),
             style: AppTextStyles.eyebrow
-                .copyWith(color: AppColors.gold, letterSpacing: 2.5)),
+                .copyWith(color: accent, letterSpacing: 2.5)),
         const SizedBox(width: AppDimens.sm + 2),
         line,
       ],

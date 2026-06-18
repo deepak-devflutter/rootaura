@@ -15,6 +15,7 @@ class AppColors {
 
   // Accents — refined gold (luxury), warm berry for sale/destructive
   static const Color gold = Color(0xFFB0852F);
+  static const Color goldBright = Color(0xFFD8B264); // gold for dark surfaces
   static const Color goldSoft = Color(0xFFEADFC6);
   static const Color berry = Color(0xFFC0444D);
   static const Color mango = Color(0xFFF5A623);
@@ -105,7 +106,7 @@ class BrandColors extends ThemeExtension<BrandColors> {
     textPrimary: AppColors.textPrimaryDark,
     textSecondary: AppColors.textSecondaryDark,
     border: AppColors.borderDark,
-    accent: AppColors.gold,
+    accent: AppColors.goldBright,
     onAccentSurface: AppColors.surfaceAltDark,
     shadow: Color(0x55000000),
     surfaceRaised: Color(0xFF221F1A),
