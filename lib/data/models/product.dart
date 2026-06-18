@@ -12,6 +12,11 @@ class Product {
   final double mrp; // strike-through price (₹), 0 if none
   final int stock; // available units
   final bool active;
+  final int sortOrder; // admin-defined display position (asc); lower shows first
+
+  /// Position used for products whose Firestore doc predates the `sortOrder`
+  /// field. Large enough that un-ordered docs sink below any arranged ones.
+  static const int defaultSortOrder = 1 << 20;
 
   const Product({
     this.id = '',
@@ -24,6 +29,7 @@ class Product {
     this.mrp = 0,
     this.stock = 0,
     this.active = true,
+    this.sortOrder = defaultSortOrder,
   });
 
   String? get firstImage => imageUrls.isNotEmpty ? imageUrls.first : null;
@@ -54,6 +60,7 @@ class Product {
       mrp: (m['mrp'] as num?)?.toDouble() ?? 0,
       stock: (m['stock'] as num?)?.toInt() ?? 0,
       active: m['active'] as bool? ?? true,
+      sortOrder: (m['sortOrder'] as num?)?.toInt() ?? defaultSortOrder,
     );
   }
 

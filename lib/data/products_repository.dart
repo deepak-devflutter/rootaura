@@ -24,8 +24,7 @@ class ProductsRepository {
     final snap = await _col.where('active', isEqualTo: true).get();
     final list =
         snap.docs.map((d) => Product.fromMap(d.id, d.data())).toList();
-    // Stable ordering by name keeps the grid from reshuffling between loads.
-    list.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+    _sortByOrder(list);
     return list;
   }
 
@@ -35,8 +34,20 @@ class ProductsRepository {
     return _col.where('active', isEqualTo: true).snapshots().map((s) {
       final list =
           s.docs.map((d) => Product.fromMap(d.id, d.data())).toList();
-      list.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+      _sortByOrder(list);
       return list;
+    });
+  }
+
+  /// Admin-defined order first, then name as a stable tiebreaker. Done
+  /// client-side so products whose docs lack `sortOrder` are never dropped
+  /// (a Firestore `orderBy` would exclude docs missing the field).
+  void _sortByOrder(List<Product> list) {
+    list.sort((a, b) {
+      final byOrder = a.sortOrder.compareTo(b.sortOrder);
+      return byOrder != 0
+          ? byOrder
+          : (a.name ?? '').compareTo(b.name ?? '');
     });
   }
 
@@ -50,21 +61,45 @@ class ProductsRepository {
 
   // ---- Admin CRUD ----
 
-  /// Live stream of ALL products (including inactive) for the admin panel.
+  /// Live stream of ALL products (including inactive) for the admin panel,
+  /// in the admin-defined order. Sorted client-side so docs without a
+  /// `sortOrder` field still appear.
   Stream<List<Product>> streamAll() {
-    return _col.orderBy('name').snapshots().map(
-        (s) => s.docs.map((d) => Product.fromMap(d.id, d.data())).toList());
+    return _col.snapshots().map((s) {
+      final list =
+          s.docs.map((d) => Product.fromMap(d.id, d.data())).toList();
+      _sortByOrder(list);
+      return list;
+    });
   }
 
   /// A fresh random document id — used to namespace image uploads before the
   /// product doc is written.
   String newId() => _col.doc().id;
 
-  /// Creates a product with a random Firestore-generated id.
+  /// Creates a product with a random Firestore-generated id. New products are
+  /// appended after any already-arranged ones.
   Future<String> create(Product product) async {
-    final ref = await _col.add(product.toMap());
+    final all = await _col.get();
+    final maxOrder = all.docs.fold<int>(-1, (m, d) {
+      final v = (d.data()['sortOrder'] as num?)?.toInt();
+      return (v != null && v < Product.defaultSortOrder && v > m) ? v : m;
+    });
+    final data = product.toMap()..['sortOrder'] = maxOrder + 1;
+    final ref = await _col.add(data);
     _cache = null; // invalidate so the storefront refetches
     return ref.id;
+  }
+
+  /// Persists a new display order. Writes each product's `sortOrder` to its
+  /// index in [ordered] using a single atomic batch.
+  Future<void> reorder(List<Product> ordered) async {
+    final batch = FirebaseFirestore.instance.batch();
+    for (var i = 0; i < ordered.length; i++) {
+      batch.update(_col.doc(ordered[i].id), {'sortOrder': i});
+    }
+    await batch.commit();
+    _cache = null;
   }
 
   Future<void> update(String id, Product product) async {

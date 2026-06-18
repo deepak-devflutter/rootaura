@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_dimens.dart';
@@ -10,8 +11,51 @@ import '../../data/products_repository.dart';
 import '../../widgets/app_buttons.dart';
 import 'product_form_screen.dart';
 
-class AdminProductsTab extends StatelessWidget {
+class AdminProductsTab extends StatefulWidget {
   const AdminProductsTab({super.key});
+
+  @override
+  State<AdminProductsTab> createState() => _AdminProductsTabState();
+}
+
+class _AdminProductsTabState extends State<AdminProductsTab> {
+  /// Local working copy so drag-to-reorder feels instant; kept in sync with
+  /// the live stream (adopting the server order only when products are
+  /// added/removed, otherwise preserving the order being edited).
+  List<Product> _items = const [];
+  bool _savingOrder = false;
+
+  void _syncFromServer(List<Product> server) {
+    final serverIds = server.map((p) => p.id).toSet();
+    final localIds = _items.map((p) => p.id).toSet();
+    if (!setEquals(serverIds, localIds)) {
+      _items = server; // structure changed → adopt the server order
+    } else {
+      // Same set: keep local order but refresh fields (stock, price, …).
+      final byId = {for (final p in server) p.id: p};
+      _items = [for (final p in _items) byId[p.id]!];
+    }
+  }
+
+  Future<void> _onReorder(int oldIndex, int newIndex) async {
+    setState(() {
+      if (newIndex > oldIndex) newIndex -= 1;
+      final moved = _items.removeAt(oldIndex);
+      _items.insert(newIndex, moved);
+      _savingOrder = true;
+    });
+    try {
+      await ProductsRepository.instance.reorder(_items);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not save the new order.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _savingOrder = false);
+    }
+  }
 
   Future<void> _openForm(BuildContext context, {Product? existing}) async {
     await Navigator.of(context).push(MaterialPageRoute(
@@ -50,6 +94,13 @@ class AdminProductsTab extends StatelessWidget {
             Text('Products',
                 style: AppTextStyles.h3
                     .copyWith(color: brand.textPrimary, fontSize: 18)),
+            if (_savingOrder) ...[
+              const SizedBox(width: AppDimens.md),
+              const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
+            ],
             const Spacer(),
             PrimaryButton(
               text: 'Add Product',
@@ -59,11 +110,16 @@ class AdminProductsTab extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppDimens.sm),
+        Text('Drag the handle to change the order products appear in the store.',
+            style:
+                AppTextStyles.bodySmall.copyWith(color: brand.textSecondary)),
         const SizedBox(height: AppDimens.lg),
         StreamBuilder<List<Product>>(
           stream: ProductsRepository.instance.streamAll(),
           builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) {
+            if (snap.connectionState == ConnectionState.waiting &&
+                _items.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.all(AppDimens.xxl),
                 child: Center(child: CircularProgressIndicator()),
@@ -74,20 +130,28 @@ class AdminProductsTab extends StatelessWidget {
                   style: AppTextStyles.bodyMedium
                       .copyWith(color: AppColors.berry));
             }
-            final products = snap.data ?? const [];
-            if (products.isEmpty) {
+            if (snap.hasData) _syncFromServer(snap.data!);
+            if (_items.isEmpty) {
               return Text('No products yet. Tap “Add Product” to create one.',
                   style: AppTextStyles.bodyMedium
                       .copyWith(color: brand.textSecondary));
             }
-            return Column(
-              children: products
-                  .map((p) => _ProductRow(
-                        product: p,
-                        onEdit: () => _openForm(context, existing: p),
-                        onDelete: () => _confirmDelete(context, p),
-                      ))
-                  .toList(),
+            return ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              buildDefaultDragHandles: false,
+              itemCount: _items.length,
+              onReorder: _onReorder,
+              itemBuilder: (context, index) {
+                final p = _items[index];
+                return _ProductRow(
+                  key: ValueKey(p.id),
+                  product: p,
+                  index: index,
+                  onEdit: () => _openForm(context, existing: p),
+                  onDelete: () => _confirmDelete(context, p),
+                );
+              },
             );
           },
         ),
@@ -98,10 +162,15 @@ class AdminProductsTab extends StatelessWidget {
 
 class _ProductRow extends StatelessWidget {
   final Product product;
+  final int index;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   const _ProductRow(
-      {required this.product, required this.onEdit, required this.onDelete});
+      {super.key,
+      required this.product,
+      required this.index,
+      required this.onEdit,
+      required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +186,17 @@ class _ProductRow extends StatelessWidget {
       ),
       child: Row(
         children: [
+          ReorderableDragStartListener(
+            index: index,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.grab,
+              child: Padding(
+                padding: const EdgeInsets.only(right: AppDimens.sm),
+                child: Icon(Icons.drag_indicator_rounded,
+                    color: brand.textSecondary),
+              ),
+            ),
+          ),
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDimens.radiusSm),
             child: Container(
