@@ -77,7 +77,7 @@ class AppContent {
     InfoItem(
       Icons.ac_unit_rounded,
       'Freeze-Dried Technology',
-      'Preserves natural flavour, colour & nutrients at low temperature.',
+      'Preserves natural flavour & nutrients at low temperature.',
       image: 'assets/whyus/Freeze-Dried Technology.png'
     ),
     InfoItem(

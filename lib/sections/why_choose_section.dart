@@ -166,7 +166,7 @@ class _WhyCard extends StatelessWidget {
   // Fixed height makes every card equal AND lets the IntrinsicHeight grid skip
   // measuring the LayoutBuilder inside (a tight SizedBox answers intrinsics
   // directly instead of descending into it).
-  static const double _cardHeight = 212;
+  static const double _cardHeight = 222;
 
   @override
   Widget build(BuildContext context) {
