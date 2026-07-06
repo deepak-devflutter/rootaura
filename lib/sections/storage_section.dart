@@ -15,7 +15,7 @@ class StorageSection extends StatelessWidget {
   const StorageSection({super.key});
 
   static const _leaf =
-      'assets/product_storage/Vibrant green leaf on transparent background.png';
+      'assets/product_storage/Vibrant green leaf on transparent background.webp';
 
   @override
   Widget build(BuildContext context) {
@@ -187,22 +187,6 @@ class _StorageCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _iconBadge(bool hovered) {
-    final c = hovered ? AppColors.gold : AppColors.primaryGreen;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      width: 48,
-      height: 48,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: (hovered ? AppColors.goldSoft : AppColors.mintTint)
-            .withValues(alpha: hovered ? 0.7 : 1),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(item.icon, color: c, size: 22),
     );
   }
 }

@@ -119,7 +119,7 @@ class _ExpandingPanelsState extends State<_ExpandingPanels> {
             Image.asset(item.image,
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
-                errorBuilder: (c, e, s) => Image.asset('assets/images/basket.png',
+                errorBuilder: (c, e, s) => Image.asset('assets/images/basket.webp',
                     fit: BoxFit.cover)),
             const DecoratedBox(
               decoration: BoxDecoration(
@@ -207,7 +207,7 @@ class _UsageCard extends StatelessWidget {
             Image.asset(item.image,
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) =>
-                    Image.asset('assets/images/basket.png', fit: BoxFit.cover)),
+                    Image.asset('assets/images/basket.webp', fit: BoxFit.cover)),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(

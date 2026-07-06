@@ -95,7 +95,7 @@ class ProductCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppDimens.xl),
             child: SvgPicture.asset(fruit, fit: BoxFit.contain),
           )
-        : Image.asset('assets/images/basket.png', fit: BoxFit.cover);
+        : Image.asset('assets/images/basket.webp', fit: BoxFit.cover);
 
     final url = product.firstImage;
     if (url == null || url.isEmpty) return fallback();

@@ -47,6 +47,8 @@ dependencies:
   http: ^1.6.0
   firebase_storage: ^13.4.2
   image_picker: ^1.2.2
+  image: ^4.3.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +75,6 @@ flutter:
   assets:
     - assets/images/
     - assets/svg/
-    - assets/product_images/
     - assets/icons/
     - assets/fruit/
     - assets/badges/

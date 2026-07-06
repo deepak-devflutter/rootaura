@@ -53,12 +53,12 @@ class WhyChooseSection extends StatelessWidget {
         Positioned(
           top: -12,
           left: -28,
-          child: _deco('assets/whyus/whyus_top_left.png', 210),
+          child: _deco('assets/whyus/whyus_top_left.webp', 210),
         ),
         Positioned(
           top: -44,
           right: -16,
-          child: _deco('assets/whyus/whyus_top_right.png', 280),
+          child: _deco('assets/whyus/whyus_top_right.webp', 280),
         ),
 
       ];

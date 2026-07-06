@@ -19,7 +19,7 @@ class CtaSection extends StatefulWidget {
 }
 
 class _CtaSectionState extends State<CtaSection> {
-  static const _bg = 'assets/images/CtaSection.png';
+  static const _bg = 'assets/images/CtaSection.webp';
   final _email = TextEditingController();
 
   @override

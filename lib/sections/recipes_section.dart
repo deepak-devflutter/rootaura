@@ -95,7 +95,7 @@ class _RecipeCard extends StatelessWidget {
               child: Image.asset(item.image,
                   fit: BoxFit.cover,
                   errorBuilder: (c, e, s) => Image.asset(
-                      'assets/images/basket.png',
+                      'assets/images/basket.webp',
                       fit: BoxFit.cover)),
             ),
           ),
@@ -202,7 +202,7 @@ class _RecipeLightboxState extends State<_RecipeLightbox> {
     final image = Image.asset(r.image,
         fit: BoxFit.cover,
         errorBuilder: (c, e, s) =>
-            Image.asset('assets/images/basket.png', fit: BoxFit.cover));
+            Image.asset('assets/images/basket.webp', fit: BoxFit.cover));
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,

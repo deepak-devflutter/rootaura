@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/constants/app_dimens.dart';
+import '../../core/permissions/app_permission.dart';
+import '../../core/permissions/permission_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/image_service.dart';
@@ -48,8 +50,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   Future<void> _pick() async {
-    final files = await ImageService.instance.pick();
-    if (files.isNotEmpty) setState(() => _newImages.addAll(files));
+    // Check photo access only at the moment it's needed (no-op on web).
+    final granted = await PermissionService.instance
+        .ensure(context, AppPermission.photos);
+    if (!granted) return;
+    try {
+      final files = await ImageService.instance.pick();
+      if (files.isNotEmpty) setState(() => _newImages.addAll(files));
+    } catch (e) {
+      if (mounted) _toast('Could not open the image picker: $e');
+    }
   }
 
   Future<void> _save() async {

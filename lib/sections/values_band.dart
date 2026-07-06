@@ -8,7 +8,7 @@ class ValuesBand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      'assets/images/ValuesBand.png',
+      'assets/images/ValuesBand.webp',
       width: double.infinity,
       fit: BoxFit.fitWidth,
       errorBuilder: (c, e, s) => const SizedBox.shrink(),

@@ -16,7 +16,7 @@ class InfoItem {
     this.icon,
     this.title,
     this.subtitle, {
-    this.image = 'assets/whyus/Perfect On-the-Go.png',
+    this.image = 'assets/whyus/Perfect On-the-Go.webp',
   });
 }
 
@@ -34,7 +34,7 @@ class UsageItem {
     this.icon,
     this.title,
     this.description, {
-    this.image = 'assets/images/basket.png',
+    this.image = 'assets/images/basket.webp',
   });
 }
 
@@ -50,7 +50,7 @@ class RecipeItem {
     this.emoji,
     this.title,
     this.ingredients, {
-    this.image = 'assets/images/basket.png',
+    this.image = 'assets/images/basket.webp',
   });
 }
 
@@ -78,19 +78,19 @@ class AppContent {
       Icons.ac_unit_rounded,
       'Freeze-Dried Technology',
       'Preserves natural flavour & nutrients at low temperature.',
-      image: 'assets/whyus/Freeze-Dried Technology.png'
+      image: 'assets/whyus/Freeze-Dried Technology.webp'
     ),
     InfoItem(
       Icons.spa_rounded,
       'No Preservatives',
       'Made from real fruits with nothing artificial added.',
-        image: 'assets/whyus/No Preservatives.png'
+        image: 'assets/whyus/No Preservatives.webp'
     ),
     InfoItem(
       Icons.schedule_rounded,
       'Long Shelf Life',
       'Stays fresh for months at room temperature.',
-        image: 'assets/whyus/Long Shelf Life.png'
+        image: 'assets/whyus/Long Shelf Life.webp'
 
     ),
     InfoItem(
@@ -102,14 +102,14 @@ class AppContent {
       Icons.verified_rounded,
       'Hygienic Processing',
       'Crafted under strict, hygienic quality standards.',
-        image: 'assets/whyus/Hygienic Processing.png'
+        image: 'assets/whyus/Hygienic Processing.webp'
 
     ),
     InfoItem(
       Icons.favorite_rounded,
       'Real Fruit. Real Taste.',
       'Crunchy, delicious and naturally satisfying.',
-        image: 'assets/whyus/Real Fruit Real Taste.png'
+        image: 'assets/whyus/Real Fruit Real Taste.webp'
 
     ),
   ];
@@ -121,42 +121,42 @@ class AppContent {
       Icons.breakfast_dining_rounded,
       'Yogurt & Parfaits',
       'Add a crunchy burst of fruit to yogurt, parfaits and breakfast bowls.',
-      image: 'assets/images/Yogurt & Parfaits.png',
+      image: 'assets/images/Yogurt & Parfaits.webp',
     ),
     UsageItem(
       '🥤',
       Icons.local_cafe_rounded,
       'Smoothies & Shakes',
       'Blend with milk, yogurt or smoothies for natural fruit flavour.',
-      image: 'assets/images/Smoothies & Shakes.png',
+      image: 'assets/images/Smoothies & Shakes.webp',
     ),
     UsageItem(
       '🍓',
       Icons.lunch_dining_rounded,
       'Healthy Snacking',
       'Enjoy straight from the pack for a convenient, guilt-free snack.',
-      image: 'assets/images/Healthy Snacking.png',
+      image: 'assets/images/Healthy Snacking.webp',
     ),
     UsageItem(
       '🥗',
       Icons.rice_bowl_rounded,
       'Fruit Bowls & Salads',
       'Add texture, colour and sweetness to fruit bowls and salads.',
-      image: 'assets/images/Fruit Bowls & Salads.png',
+      image: 'assets/images/Fruit Bowls & Salads.webp',
     ),
     UsageItem(
       '🍰',
       Icons.cake_rounded,
       'Desserts & Toppings',
       'Perfect for cakes, ice creams, pancakes, granola and baked treats.',
-      image: 'assets/images/Desserts & Toppings.png',
+      image: 'assets/images/Desserts & Toppings.webp',
     ),
     UsageItem(
       '🎒',
       Icons.backpack_rounded,
       'On-the-Go Goodness',
       'Lightweight and mess-free, perfect for any adventure.',
-      image: 'assets/images/On-the-Go Goodness.png',
+      image: 'assets/images/On-the-Go Goodness.webp',
     ),
   ];
 
@@ -167,18 +167,18 @@ class AppContent {
       'Rootaura Kiwi',
       'Honey',
       'Granola',
-    ], image: 'assets/images/Kiwi Yogurt Parfait.png'),
+    ], image: 'assets/images/Kiwi Yogurt Parfait.webp'),
     RecipeItem(
       '🖤',
       'Black Jamun Fruit Chaat',
       ['Mixed fruits', 'Rootaura Black Jamun', 'Black salt', 'Chaat masala'],
-      image: 'assets/images/Black Jamun Fruit Chaat.png',
+      image: 'assets/images/Black Jamun Fruit Chaat.webp',
     ),
     RecipeItem('🥭', 'Mango Smoothie', [
       'Banana',
       'Milk / yogurt',
       'Rootaura Mango',
-    ], image: 'assets/images/Mango Smoothie.png'),
+    ], image: 'assets/images/Mango Smoothie.webp'),
   ];
 
   // ---- Storage tips ----
@@ -187,37 +187,37 @@ class AppContent {
       Icons.thermostat_rounded,
       'Store in a Cool, Dry Place',
       'Keep away from direct sunlight, heat and moisture.',
-      image: 'assets/product_storage/Store in a Cool, Dry Place.png'
+      image: 'assets/product_storage/Store in a Cool, Dry Place.webp'
     ),
     InfoItem(
       Icons.lock_rounded,
       'Reseal After Every Use',
       'Seal the pouch tightly to maintain freshness and crunch.',
-      image: 'assets/product_storage/Reseal After Every Use.png'
+      image: 'assets/product_storage/Reseal After Every Use.webp'
     ),
     InfoItem(
       Icons.clean_hands_rounded,
       'Use Clean, Dry Hands or Spoon',
       'Avoid introducing moisture into the pack.',
-      image: 'assets/product_storage/Use Clean, Dry Hands or Spoon.png'
+      image: 'assets/product_storage/Use Clean, Dry Hands or Spoon.webp'
     ),
     InfoItem(
       Icons.inventory_2_rounded,
       'Transfer to an Airtight Container',
       'For best results once the pouch is opened.',
-      image: 'assets/product_storage/Transfer to an Airtight Container.png'
+      image: 'assets/product_storage/Transfer to an Airtight Container.webp'
     ),
     InfoItem(
       Icons.water_drop_outlined,
       'Avoid Humidity Exposure',
       'Freeze-dried fruits absorb moisture and lose their crisp texture.',
-      image: 'assets/product_storage/Avoid Humidity Exposure.png'
+      image: 'assets/product_storage/Avoid Humidity Exposure.webp'
     ),
     InfoItem(
       Icons.kitchen_outlined,
       'Refrigeration Not Required',
       'Store at room temperature in a cool, dry place.',
-      image: 'assets/product_storage/Refrigeration Not Required.png'
+      image: 'assets/product_storage/Refrigeration Not Required.webp'
     ),
   ];
 

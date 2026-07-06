@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "374160246852",
+    "project_id": "rootaura-farms",
+    "storage_bucket": "rootaura-farms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374160246852:android:4eaed8fc994b181d4f5411",
+        "android_client_info": {
+          "package_name": "com.rootaura.rootaura_naturals"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "374160246852-kge63692clccb3s8mifki9n2oqkn4faq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBegwGkUQlmanzmWT7laKVi60zhEMSXrUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "374160246852-kge63692clccb3s8mifki9n2oqkn4faq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
