@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_dimens.dart';
@@ -94,7 +95,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _backLink(context),
+        Row(
+          children: [
+            Expanded(child: _backLink(context)),
+            _shareButton(context, p),
+          ],
+        ),
         const SizedBox(height: AppDimens.md),
         Text(p.name ?? '',
             style: (isMobile ? AppTextStyles.h1Mobile : AppTextStyles.h1)
@@ -224,19 +230,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _backLink(BuildContext context) {
+    // If there's in-app history, go back to it; otherwise (e.g. the product
+    // was opened from a shared link) go to the home page — never exit the app.
+    final canPop = context.canPop();
     return InkWell(
-      onTap: () =>
-          context.canPop() ? context.pop() : context.go(AppRoutes.products),
+      onTap: () => canPop ? context.pop() : context.go(AppRoutes.home),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.arrow_back_rounded,
               size: 18, color: AppColors.primaryGreen),
           const SizedBox(width: 6),
-          Text('Back to products',
+          Text(canPop ? 'Back' : 'Back to home',
               style: AppTextStyles.bodyMedium
                   .copyWith(color: AppColors.primaryGreen)),
         ],
+      ),
+    );
+  }
+
+  Widget _shareButton(BuildContext context, Product p) {
+    return TextButton.icon(
+      style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
+      onPressed: () => _share(context, p),
+      icon: const Icon(Icons.share_outlined, size: 18),
+      label: const Text('Share'),
+    );
+  }
+
+  void _share(BuildContext context, Product p) {
+    // Clean, deep-linkable URL for this product on the current domain.
+    final url = '${Uri.base.origin}${AppRoutes.productDetailPath(p.slug)}';
+    Clipboard.setData(ClipboardData(text: url));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Link copied — share it with friends!\n$url'),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

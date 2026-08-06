@@ -29,7 +29,9 @@ class _SignInScreenState extends State<SignInScreen> {
   final _otp = TextEditingController();
 
   ConfirmationResult? _confirmation;
-  bool _busy = false;
+  // Independent loading flags so the two sign-in methods never spin together.
+  bool _busyGoogle = false;
+  bool _busyPhone = false;
   String? _error;
 
   @override
@@ -48,48 +50,87 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  Future<void> _run(Future<void> Function() action) async {
+  /// Codes fired when the user simply closes/cancels the Google popup — not
+  /// real errors, so we reset silently without a scary message.
+  static const _cancelCodes = {
+    'popup-closed-by-user',
+    'cancelled-popup-request',
+    'user-cancelled',
+    'web-context-cancelled',
+    'web-context-already-presented',
+  };
+
+  Future<void> _google() async {
+    if (_busyGoogle) return;
     setState(() {
-      _busy = true;
+      _busyGoogle = true;
       _error = null;
     });
     try {
-      await action();
+      await AuthService.instance.signInWithGoogle();
+      if (mounted) _done();
     } on FirebaseAuthException catch (e) {
-      setState(() => _error = e.message ?? 'Authentication failed.');
-    } catch (e) {
-      setState(() => _error = 'Something went wrong. Please try again.');
+      if (mounted && !_cancelCodes.contains(e.code)) {
+        setState(() => _error = e.message ?? 'Google sign-in failed.');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Something went wrong. Please try again.');
+      }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      // Always clears the spinner — including when the popup is cancelled.
+      if (mounted) setState(() => _busyGoogle = false);
     }
   }
 
-  Future<void> _google() => _run(() async {
-        await AuthService.instance.signInWithGoogle();
-        if (mounted) _done();
-      });
-
-  Future<void> _sendOtp() {
+  Future<void> _sendOtp() async {
+    if (_busyPhone) return;
     final digits = _phone.text.replaceAll(RegExp(r'\D'), '');
     if (digits.length < 10) {
       setState(() => _error = 'Enter a valid 10-digit mobile number.');
-      return Future.value();
+      return;
     }
-    return _run(() async {
-      _confirmation = await AuthService.instance.startPhoneSignIn('+91$digits');
-      setState(() {});
+    setState(() {
+      _busyPhone = true;
+      _error = null;
     });
+    try {
+      _confirmation = await AuthService.instance.startPhoneSignIn('+91$digits');
+    } on FirebaseAuthException catch (e) {
+      if (mounted) setState(() => _error = e.message ?? 'Could not send OTP.');
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Something went wrong. Please try again.');
+      }
+    } finally {
+      if (mounted) setState(() => _busyPhone = false);
+    }
   }
 
-  Future<void> _verifyOtp() {
+  Future<void> _verifyOtp() async {
+    if (_busyPhone) return;
     if (_otp.text.trim().length < 6) {
       setState(() => _error = 'Enter the 6-digit code.');
-      return Future.value();
+      return;
     }
-    return _run(() async {
+    setState(() {
+      _busyPhone = true;
+      _error = null;
+    });
+    try {
       await _confirmation!.confirm(_otp.text.trim());
       if (mounted) _done();
-    });
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(() => _error = e.message ?? 'Invalid or expired code.');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Something went wrong. Please try again.');
+      }
+    } finally {
+      if (mounted) setState(() => _busyPhone = false);
+    }
   }
 
   @override
@@ -159,7 +200,8 @@ class _SignInScreenState extends State<SignInScreen> {
           if (_error != null) _errorBox(),
 
           // Primary path: Google (fastest, no SMS cost).
-          _GoogleButton(busy: _busy, onPressed: _busy ? null : _google),
+          _GoogleButton(
+              busy: _busyGoogle, onPressed: _busyGoogle ? null : _google),
           const SizedBox(height: AppDimens.sm),
           Center(
             child: Text('Fastest sign-in — no OTP needed',
@@ -218,7 +260,7 @@ class _SignInScreenState extends State<SignInScreen> {
           decoration: _decoration(brand, 'Mobile number', prefix: '+91 '),
         ),
         const SizedBox(height: AppDimens.md),
-        _busy
+        _busyPhone
             ? const Center(child: CircularProgressIndicator())
             : SecondaryButton(
                 text: 'Send OTP',
@@ -246,11 +288,12 @@ class _SignInScreenState extends State<SignInScreen> {
           decoration: _decoration(brand, '6-digit OTP'),
         ),
         const SizedBox(height: AppDimens.md),
-        _busy
+        _busyPhone
             ? const Center(child: CircularProgressIndicator())
             : PrimaryButton(text: 'Verify & Continue', onPressed: _verifyOtp),
         TextButton(
-          onPressed: _busy ? null : () => setState(() => _confirmation = null),
+          onPressed:
+              _busyPhone ? null : () => setState(() => _confirmation = null),
           child: const Text('Change number'),
         ),
       ],
