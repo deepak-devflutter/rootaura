@@ -58,6 +58,9 @@ class AppFooter extends StatelessWidget {
                         () => UrlHelper.launch('mailto:${AppStrings.contactEmailAddress}')),
                     _FooterLink(AppStrings.contactPhone,
                         () => UrlHelper.launch('tel:${AppStrings.contactPhone}')),
+                    _FooterLink(AppStrings.contactPhoneSecondary,
+                        () => UrlHelper.launch(
+                            'tel:${AppStrings.contactPhoneSecondary}')),
                     _FooterLink('WhatsApp',
                         () => UrlHelper.launch('https://wa.me/${AppStrings.contactPhoneRaw}')),
                     _FooterLink('Instagram',

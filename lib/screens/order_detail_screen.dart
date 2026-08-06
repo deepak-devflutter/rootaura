@@ -11,11 +11,13 @@ import '../data/models/cart_item.dart';
 import '../data/models/order.dart';
 import '../data/order_repository.dart';
 import '../data/products_repository.dart';
+import '../state/auth_controller.dart';
 import '../state/cart_controller.dart';
 import '../utils/format.dart';
 import '../utils/url_helper.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/page_scaffold.dart';
+import '../widgets/product_reviews.dart';
 import '../widgets/section.dart';
 import '../widgets/status_badge.dart';
 
@@ -85,7 +87,13 @@ class OrderDetailScreen extends StatelessWidget {
         const SizedBox(height: AppDimens.lg),
         _OrderTimeline(status: o.status),
         const SizedBox(height: AppDimens.xl),
-        _card(brand, 'Items', Column(children: o.items.map(_itemRow).toList())),
+        _card(
+            brand,
+            'Items',
+            Column(
+                children: o.items
+                    .map((i) => _itemRow(context, o, i))
+                    .toList())),
         const SizedBox(height: AppDimens.md),
         _card(
           brand,
@@ -260,34 +268,70 @@ class OrderDetailScreen extends StatelessWidget {
     context.push(AppRoutes.cart);
   }
 
-  Widget _itemRow(CartItem i) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-              child: Container(
-                width: 44,
-                height: 44,
-                color: const Color(0x11000000),
-                padding: const EdgeInsets.all(4),
-                child: CachedNetworkImage(
-                  imageUrl: i.image,
-                  fit: BoxFit.contain,
-                  errorWidget: (c, _, __) => const Icon(Icons.eco_rounded,
-                      size: 18, color: AppColors.primaryGreen),
+  Widget _itemRow(BuildContext context, ShopOrder o, CartItem i) {
+    final auth = AuthController.instance;
+    // Only the buyer can review, and only for a non-cancelled order.
+    final canReview = auth.isSignedIn &&
+        auth.user!.uid == o.uid &&
+        o.status != OrderStatus.cancelled;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  color: const Color(0x11000000),
+                  padding: const EdgeInsets.all(4),
+                  child: CachedNetworkImage(
+                    imageUrl: i.image,
+                    fit: BoxFit.contain,
+                    errorWidget: (c, _, __) => const Icon(Icons.eco_rounded,
+                        size: 18, color: AppColors.primaryGreen),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppDimens.sm),
+              Expanded(
+                  child: Text('${i.name}  × ${i.qty}',
+                      style: const TextStyle(fontWeight: FontWeight.w500))),
+              Text(ShopConfig.money(i.lineTotal),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+            ],
+          ),
+          if (canReview)
+            Padding(
+              padding: const EdgeInsets.only(left: 52),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: () => showProductReviewDialog(
+                    context,
+                    productId: i.productId,
+                    productName: i.name,
+                    uid: o.uid,
+                    userName: AuthController.instance.profile?.name ?? 'Customer',
+                    orderId: o.id,
+                  ),
+                  icon: const Icon(Icons.star_outline_rounded, size: 18),
+                  label: const Text('Rate this product'),
                 ),
               ),
             ),
-            const SizedBox(width: AppDimens.sm),
-            Expanded(
-                child: Text('${i.name}  × ${i.qty}',
-                    style: const TextStyle(fontWeight: FontWeight.w500))),
-            Text(ShopConfig.money(i.lineTotal),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-          ],
-        ),
-      );
+        ],
+      ),
+    );
+  }
 
   Widget _billRow(BrandColors brand, String label, String value,
           {bool bold = false}) =>

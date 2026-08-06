@@ -230,6 +230,9 @@ Sent from the Rootaura Naturals website''';
           const SizedBox(height: AppDimens.sm),
           _contactRow(Icons.phone_outlined, AppStrings.contactPhone,
               'tel:${AppStrings.contactPhone}'),
+          const SizedBox(height: AppDimens.sm),
+          _contactRow(Icons.phone_outlined, AppStrings.contactPhoneSecondary,
+              'tel:${AppStrings.contactPhoneSecondary}'),
         ],
       ),
     );

@@ -24,6 +24,33 @@ service cloud.firestore {
     // ---- products: public read; admin full write; signed-in users may only
     // decrement `stock` (for order placement). Any other field change, or
     // increasing stock, requires admin. ----
+    // Product reviews — world-readable; a signed-in user writes their own
+    // (with a valid 1–5 rating and no admin-only fields); admins moderate.
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.get('hidden', false) == false
+        && !('adminReply' in request.resource.data);
+      allow update: if isAdmin() || (
+        signedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.get('hidden', false) ==
+             resource.data.get('hidden', false)
+        && request.resource.data.get('adminReply', '') ==
+             resource.data.get('adminReply', '')
+      );
+      allow delete: if isAdmin() ||
+        (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
     match /products/{id} {
       allow read: if true;
       allow create, delete: if isAdmin();

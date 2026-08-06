@@ -6,13 +6,18 @@ import '../core/router/app_router.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/models/address.dart';
+import '../data/models/review.dart';
 import '../data/models/user_profile.dart';
+import '../data/review_repository.dart';
 import '../data/user_repository.dart';
 import '../state/auth_controller.dart';
+import '../utils/format.dart';
 import '../widgets/address_form.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/page_scaffold.dart';
+import '../widgets/product_reviews.dart';
 import '../widgets/section.dart';
+import '../widgets/star_rating.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -106,6 +111,12 @@ class ProfileScreen extends StatelessWidget {
                 else
                   ...profile.addresses.map((a) => _addressCard(
                       context, brand, profile, a)),
+                const SizedBox(height: AppDimens.xl),
+                Text('My Reviews',
+                    style: AppTextStyles.h3
+                        .copyWith(color: brand.textPrimary, fontSize: 18)),
+                const SizedBox(height: AppDimens.sm),
+                _MyReviews(uid: profile.uid),
                 const SizedBox(height: AppDimens.xl),
                 SecondaryButton(
                   text: 'Sign Out',
@@ -380,6 +391,115 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
             child: const Text('Cancel')),
         FilledButton(onPressed: _save, child: const Text('Save')),
       ],
+    );
+  }
+}
+
+/// The signed-in customer's own reviews, shown on their profile.
+class _MyReviews extends StatelessWidget {
+  final String uid;
+  const _MyReviews({required this.uid});
+
+  @override
+  Widget build(BuildContext context) {
+    final brand = context.brand;
+    return StreamBuilder<List<Review>>(
+      stream: ReviewRepository.instance.forUser(uid),
+      builder: (context, snap) {
+        final reviews = snap.data ?? const <Review>[];
+        if (reviews.isEmpty) {
+          return Text('You haven’t reviewed any products yet.',
+              style: AppTextStyles.bodyMedium
+                  .copyWith(color: brand.textSecondary));
+        }
+        return Column(
+          children: reviews.map((r) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: AppDimens.sm),
+              padding: const EdgeInsets.all(AppDimens.md),
+              decoration: BoxDecoration(
+                color: brand.card,
+                borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                border: Border.all(color: brand.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                            r.productName.isEmpty
+                                ? 'Product'
+                                : r.productName,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: brand.textPrimary)),
+                      ),
+                      if (r.hidden)
+                        Text('Hidden by admin',
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: AppColors.berry)),
+                      SizedBox(
+                        height: 28,
+                        width: 28,
+                        child: PopupMenuButton<String>(
+                          padding: EdgeInsets.zero,
+                          tooltip: 'Manage review',
+                          icon: const Icon(Icons.more_vert_rounded, size: 18),
+                          onSelected: (v) {
+                            if (v == 'edit') {
+                              showProductReviewDialog(
+                                context,
+                                reviewId: r.id,
+                                productId: r.productId,
+                                productName: r.productName.isEmpty
+                                    ? 'Product'
+                                    : r.productName,
+                                uid: r.uid,
+                                userName: r.userName,
+                                orderId: r.orderId,
+                              );
+                            } else if (v == 'delete') {
+                              confirmDeleteReview(context, r.id);
+                            }
+                          },
+                          itemBuilder: (_) => const [
+                            PopupMenuItem(value: 'edit', child: Text('Edit')),
+                            PopupMenuItem(
+                                value: 'delete', child: Text('Delete')),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  StarRating(r.rating.toDouble(), size: 15),
+                  if (r.text.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(r.text,
+                        style: AppTextStyles.bodySmall
+                            .copyWith(color: brand.textSecondary)),
+                  ],
+                  if (r.hasReply) ...[
+                    const SizedBox(height: AppDimens.sm),
+                    Text('Rootaura replied: ${r.adminReply}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.primaryGreen,
+                            fontStyle: FontStyle.italic)),
+                  ],
+                  if (r.createdAt != null) ...[
+                    const SizedBox(height: 4),
+                    Text(Format.date(r.createdAt!),
+                        style: AppTextStyles.bodySmall
+                            .copyWith(color: brand.textSecondary)),
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }

@@ -143,10 +143,14 @@ class AppStrings {
   static const String contactDirect = 'Or reach us directly at:';
 
   // ---- Contact details ----
-  static const String contactEmailAddress = 'rootaura_naturals@gmail.com';
-  static const String contactPhone = '+91 8595645501';
-  static const String contactPhoneRaw = '918595645501';
-  static const String amazonUrl = 'https://www.amazon.in';
+  static const String contactEmailAddress = 'rootaurafarms@gmail.com';
+  // Primary mobile number.
+  static const String contactPhone = '+91 9625979753';
+  static const String contactPhoneRaw = '919625979753';
+  // Secondary mobile number.
+  static const String contactPhoneSecondary = '+91 8595645501';
+  static const String contactPhoneSecondaryRaw = '918595645501';
+  static const String amazonUrl = 'https://www.amazon.in/s?k=rootaura';
   static const String instagramUrl = 'https://www.instagram.com';
 
   // ---- Privacy ----

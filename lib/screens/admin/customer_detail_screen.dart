@@ -9,12 +9,15 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/address.dart';
 import '../../data/models/order.dart';
+import '../../data/models/review.dart';
 import '../../data/models/user_profile.dart';
 import '../../data/order_repository.dart';
+import '../../data/review_repository.dart';
 import '../../data/user_repository.dart';
 import '../../utils/format.dart';
 import '../../utils/url_helper.dart';
 import '../../widgets/address_form.dart';
+import '../../widgets/star_rating.dart';
 import '../../widgets/status_badge.dart';
 
 /// Full customer profile for the admin: identity, lifetime stats, addresses,
@@ -52,6 +55,8 @@ class CustomerDetailScreen extends StatelessWidget {
                   _OrdersAndStats(uid: uid),
                   const SizedBox(height: AppDimens.lg),
                   _AdminControls(profile: profile),
+                  const SizedBox(height: AppDimens.lg),
+                  _CustomerReviews(uid: uid),
                   const SizedBox(height: AppDimens.lg),
                   _addresses(context, profile),
                 ],
@@ -396,6 +401,77 @@ class _CustomerEditDialogState extends State<_CustomerEditDialog> {
             child: const Text('Cancel')),
         FilledButton(onPressed: _save, child: const Text('Save')),
       ],
+    );
+  }
+}
+
+/// The reviews this customer has written (admin view).
+class _CustomerReviews extends StatelessWidget {
+  final String uid;
+  const _CustomerReviews({required this.uid});
+
+  @override
+  Widget build(BuildContext context) {
+    final brand = context.brand;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimens.lg),
+      decoration: BoxDecoration(
+        color: brand.card,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        border: Border.all(color: brand.border),
+      ),
+      child: StreamBuilder<List<Review>>(
+        stream: ReviewRepository.instance.forUser(uid),
+        builder: (context, snap) {
+          final reviews = snap.data ?? const <Review>[];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Reviews (${reviews.length})',
+                  style: AppTextStyles.h3
+                      .copyWith(color: brand.textPrimary, fontSize: 16)),
+              const SizedBox(height: AppDimens.sm),
+              if (reviews.isEmpty)
+                Text('No reviews from this customer.',
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: brand.textSecondary))
+              else
+                ...reviews.map((r) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                    r.productName.isEmpty
+                                        ? r.productId
+                                        : r.productName,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: brand.textPrimary)),
+                              ),
+                              StarRating(r.rating.toDouble(), size: 14),
+                              if (r.hidden) ...[
+                                const SizedBox(width: AppDimens.sm),
+                                const Icon(Icons.visibility_off_outlined,
+                                    size: 14, color: AppColors.berry),
+                              ],
+                            ],
+                          ),
+                          if (r.text.isNotEmpty)
+                            Text(r.text,
+                                style: AppTextStyles.bodySmall
+                                    .copyWith(color: brand.textSecondary)),
+                        ],
+                      ),
+                    )),
+            ],
+          );
+        },
+      ),
     );
   }
 }

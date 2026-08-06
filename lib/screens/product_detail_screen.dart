@@ -14,6 +14,7 @@ import '../widgets/app_buttons.dart';
 import '../widgets/fruit_art.dart';
 import '../widgets/image_carousel.dart';
 import '../widgets/page_scaffold.dart';
+import '../widgets/product_reviews.dart';
 import '../widgets/qty_stepper.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -171,7 +172,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ],
     );
 
-    return isMobile
+    final main = isMobile
         ? Column(children: [image, const SizedBox(height: AppDimens.xl), info])
         : Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -181,6 +182,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Expanded(flex: 6, child: info),
             ],
           );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        main,
+        const SizedBox(height: AppDimens.section),
+        Divider(color: brand.border),
+        const SizedBox(height: AppDimens.xl),
+        ProductReviews(productId: p.id, productName: p.name ?? ''),
+      ],
+    );
   }
 
   Widget _priceRow(BrandColors brand, Product p) {

@@ -86,12 +86,13 @@ class _CartRow extends StatelessWidget {
         border: Border.all(color: brand.border),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDimens.radiusMd),
             child: Container(
-              width: 72,
-              height: 72,
+              width: 64,
+              height: 64,
               color: brand.cardSoft,
               padding: const EdgeInsets.all(6),
               child: CachedNetworkImage(
@@ -103,42 +104,58 @@ class _CartRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppDimens.md),
+          // Everything else lives in a flexible column so nothing overflows on
+          // narrow phones: title + unit price on top, qty stepper + line total
+          // on a second line.
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: brand.textPrimary)),
-                const SizedBox(height: 4),
-                Text(ShopConfig.money(item.price),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(item.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: brand.textPrimary)),
+                    ),
+                    SizedBox(
+                      height: 28,
+                      width: 28,
+                      child: IconButton(
+                        tooltip: 'Remove',
+                        padding: EdgeInsets.zero,
+                        onPressed: () =>
+                            CartController.instance.remove(item.productId),
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                      ),
+                    ),
+                  ],
+                ),
+                Text('${ShopConfig.money(item.price)} each',
                     style: AppTextStyles.bodySmall
                         .copyWith(color: brand.textSecondary)),
+                const SizedBox(height: AppDimens.sm),
+                Row(
+                  children: [
+                    QtyStepper(
+                      qty: item.qty,
+                      max: item.stock,
+                      onChanged: (q) =>
+                          CartController.instance.setQty(item.productId, q),
+                    ),
+                    const Spacer(),
+                    Text(ShopConfig.money(item.lineTotal),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: brand.textPrimary)),
+                  ],
+                ),
               ],
             ),
-          ),
-          const SizedBox(width: AppDimens.sm),
-          QtyStepper(
-            qty: item.qty,
-            max: item.stock,
-            onChanged: (q) =>
-                CartController.instance.setQty(item.productId, q),
-          ),
-          const SizedBox(width: AppDimens.md),
-          SizedBox(
-            width: 70,
-            child: Text(ShopConfig.money(item.lineTotal),
-                textAlign: TextAlign.right,
-                style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w700, color: brand.textPrimary)),
-          ),
-          IconButton(
-            tooltip: 'Remove',
-            onPressed: () => CartController.instance.remove(item.productId),
-            icon: const Icon(Icons.close_rounded, size: 18),
           ),
         ],
       ),

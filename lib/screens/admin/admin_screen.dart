@@ -8,6 +8,7 @@ import '../../widgets/section.dart';
 import 'admin_customers_tab.dart';
 import 'admin_orders_tab.dart';
 import 'admin_products_tab.dart';
+import 'admin_reviews_tab.dart';
 
 /// Admin console: a simple two-section switch (Orders / Products) that plays
 /// nicely with the page's single scroll view.
@@ -48,6 +49,10 @@ class _AdminScreenState extends State<AdminScreen> {
                       value: 2,
                       label: Text('Customers'),
                       icon: Icon(Icons.people_alt_outlined)),
+                  ButtonSegment(
+                      value: 3,
+                      label: Text('Reviews'),
+                      icon: Icon(Icons.reviews_outlined)),
                 ],
                 selected: {_section},
                 onSelectionChanged: (s) => setState(() => _section = s.first),
@@ -57,7 +62,9 @@ class _AdminScreenState extends State<AdminScreen> {
             switch (_section) {
               0 => const AdminOrdersTab(),
               1 => const AdminProductsTab(),
-              _ => const AdminCustomersTab(),
+              2 => const AdminCustomersTab(),
+              _ => const AdminReviewsTab(),
+
             },
           ],
         ),
